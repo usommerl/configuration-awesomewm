@@ -75,7 +75,7 @@ local layouts =
 -- {{{ Wallpaper
 if beautiful.wallpaper then
     for s = 1, screen.count() do
-        gears.wallpaper.maximized(beautiful.wallpaper, s, true)
+        gears.wallpaper.tiled(beautiful.wallpaper, s)
     end
 end
 -- }}}
@@ -114,31 +114,56 @@ mytaglist.buttons = awful.util.table.join(
 
 -- Spacer
 local spacer    = awful.widget.progressbar()
-spacer:set_width(3)
+spacer:set_width(2)
 spacer:set_background_color(theme.bg_normal)
 spacer:set_border_color(nil)
 
+local widthProgressBar = 7
+local ticksSize = 1
+
 -- Battery widget
 local batteryWidget = awful.widget.progressbar()
-batteryWidget:set_width(6)
+batteryWidget:set_width(widthProgressBar)
 batteryWidget:set_ticks(true)
-batteryWidget:set_ticks_size(1)
+batteryWidget:set_ticks_size(ticksSize)
 batteryWidget:set_vertical(true)
 batteryWidget:set_background_color(theme.bg_normal)
 batteryWidget:set_border_color(nil)
 batteryWidget:set_color(theme.bg_focus)
 vicious.register(batteryWidget, vicious.widgets.bat, "$2", 61, "BAT0")
 
+batteryWidgetTooltip = awful.tooltip({
+    objects = { batteryWidget }, 
+    timer_function = 
+        function()
+            local pipe = io.popen('echo -n "$(acpi -a -b -i)"')
+            local value = pipe:read("*a")
+            pipe:close()
+            return value
+        end,
+})
+
 -- Wifi widget
 local wifiWidget = awful.widget.progressbar()
-wifiWidget:set_width(6)
+wifiWidget:set_width(widthProgressBar)
 wifiWidget:set_ticks(true)
-wifiWidget:set_ticks_size(1)
+wifiWidget:set_ticks_size(ticksSize)
 wifiWidget:set_vertical(true)
 wifiWidget:set_background_color(theme.bg_normal)
 wifiWidget:set_border_color(nil)
 wifiWidget:set_color(theme.bg_focus)
-vicious.register(wifiWidget, vicious.widgets.wifi, "${link}", 10, "wlan0")
+vicious.register(wifiWidget, vicious.widgets.wifi, "${linp}", 5, "wlan0")
+
+wifiWidgetTooltip = awful.tooltip({
+    objects = { wifiWidget }, 
+    timer_function = 
+        function()
+            local pipe = io.popen('echo -n "$(iwconfig wlan0)"')
+            local value = pipe:read("*a")
+            pipe:close()
+            return value
+        end,
+})
 
 for s = 1, screen.count() do
     -- Create a promptbox for each screen
@@ -190,6 +215,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey            }, "Pause",  function () awful.util.spawn_with_shell("gnome-screensaver-command -a") end),
     awful.key({},                    "#122",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1-") end),
     awful.key({},                    "#123",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1+") end),
+    awful.key({ modkey            }, "b",      function () mywibox[mouse.screen].visible = not mywibox[mouse.screen].visible end),
 
     awful.key({ modkey,           }, "j",
         function ()
@@ -410,4 +436,5 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- {{{ Autostart 
 awful.util.spawn_with_shell("xbacklight -set 80")
 awful.util.spawn_with_shell("detect-thinkpad-dock.sh")
+awful.util.spawn_with_shell("run_once.sh gnome-screensaver")
 -- }}}
