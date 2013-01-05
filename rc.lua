@@ -97,7 +97,7 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 
 -- {{{ Wibox
 -- Create a textclock widget
-mytextclock = awful.widget.textclock("%Y%m%dT%H:%M:%S%z",1)
+mytextclock = awful.widget.textclock("%Y-%m-%dT%H:%M:%S%z",1)
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -122,6 +122,24 @@ local widthProgressBar = 7
 local ticksSize = 1
 
 -- Battery widget
+function batteryWidgetFormatter(widget, data)
+    if data[2] >= 40 and data[2] <= 100 then
+        widget:set_color(theme.bg_focus)
+    elseif data[2] >= 15 and data[2] < 40   then
+        widget:set_color("#FFCC00")
+    elseif data[2] >= 0  and data[2] < 15   then
+        widget:set_color("#CC0000")
+    end
+
+    if data[1] == '+' then
+        widget:set_color(theme.bg_normal)
+        widget:set_background_color("#004400")
+    else
+        widget:set_background_color(theme.bg_normal)
+    end
+    return data[2]
+end
+
 local batteryWidget = awful.widget.progressbar()
 batteryWidget:set_width(widthProgressBar)
 batteryWidget:set_ticks(true)
@@ -130,7 +148,7 @@ batteryWidget:set_vertical(true)
 batteryWidget:set_background_color(theme.bg_normal)
 batteryWidget:set_border_color(nil)
 batteryWidget:set_color(theme.bg_focus)
-vicious.register(batteryWidget, vicious.widgets.bat, "$2", 61, "BAT0")
+vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter , 61, "BAT0")
 
 batteryWidgetTooltip = awful.tooltip({
     objects = { batteryWidget }, 
@@ -144,6 +162,21 @@ batteryWidgetTooltip = awful.tooltip({
 })
 
 -- Wifi widget
+function wifiWidgetFormatter(widget, data)
+    local pipe = io.popen('echo -n "$(connectionStatus.sh eth0Default)"')
+    local value = pipe:read("*a")
+    pipe:close()
+    if value == 'true' then
+        widget:set_color(theme.bg_focus)
+        widget:set_background_color('#00C6ED')
+        return 100
+    else
+        widget:set_color(theme.bg_focus)
+        widget:set_background_color(theme.bg_normal)
+        return data["{linp}"]
+    end
+end
+
 local wifiWidget = awful.widget.progressbar()
 wifiWidget:set_width(widthProgressBar)
 wifiWidget:set_ticks(true)
@@ -152,13 +185,13 @@ wifiWidget:set_vertical(true)
 wifiWidget:set_background_color(theme.bg_normal)
 wifiWidget:set_border_color(nil)
 wifiWidget:set_color(theme.bg_focus)
-vicious.register(wifiWidget, vicious.widgets.wifi, "${linp}", 5, "wlan0")
+vicious.register(wifiWidget, vicious.widgets.wifi, wifiWidgetFormatter, 5, "wlan0")
 
 wifiWidgetTooltip = awful.tooltip({
     objects = { wifiWidget }, 
     timer_function = 
         function()
-            local pipe = io.popen('echo -n "$(iwconfig wlan0)"')
+            local pipe = io.popen('echo -n "$(connectionStatus.sh)"')
             local value = pipe:read("*a")
             pipe:close()
             return value
@@ -352,18 +385,22 @@ awful.rules.rules = {
       properties = { border_width = beautiful.border_width,
                      border_color = beautiful.border_normal,
                      focus = awful.client.focus.filter,
-                     size_hints_honor = false,
                      keys = clientkeys,
                      buttons = clientbuttons } },
-    { rule = { class = "MPlayer" },
-      properties = { floating = true } },
-    { rule = { class = "pinentry" },
-      properties = { floating = true } },
-    { rule = { class = "gimp" },
-      properties = { floating = true } },
-    -- Set Firefox to always map on tags number 2 of screen 1.
-    -- { rule = { class = "Firefox" },
-    --   properties = { tag = tags[1][2] } },
+    { rule = { class = "Google-chrome" },
+      properties = { tag = tags[1][1], switchtotag = true } },
+    { rule = { class = "Firefox" },
+      properties = { tag = tags[1][1], switchtotag = true } },
+    { rule = { class = "URxvt" },
+      properties = { tag = tags[1][2], size_hints_honor = false, switchtotag = true } },
+    { rule = { instance = "vim", class = "URxvt" },
+      properties = { tag = tags[1][3] } },
+    { rule = { class = "DartEditor" },
+      properties = { tag = tags[1][3] } },
+    { rule = { class = "Dart Editor" },
+      properties = { tag = tags[1][3], switchtotag = true } },
+    { rule = { class="Eclipse" },
+      properties = { tag = tags[1][3], switchtotag = true } },
 }
 -- }}}
 
