@@ -132,10 +132,9 @@ function batteryWidgetFormatter(widget, data)
     end
 
     if data[1] == '+' then
-        widget:set_color(theme.bg_normal)
-        widget:set_background_color("#004400")
+        widget:set_border_color("#004000")
     else
-        widget:set_background_color(theme.bg_normal)
+        widget:set_border_color(nil)
     end
     return data[2]
 end
@@ -146,7 +145,6 @@ batteryWidget:set_ticks(true)
 batteryWidget:set_ticks_size(ticksSize)
 batteryWidget:set_vertical(true)
 batteryWidget:set_background_color(theme.bg_normal)
-batteryWidget:set_border_color(nil)
 batteryWidget:set_color(theme.bg_focus)
 vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter , 61, "BAT0")
 
@@ -162,21 +160,6 @@ batteryWidgetTooltip = awful.tooltip({
 })
 
 -- Wifi widget
-function wifiWidgetFormatter(widget, data)
-    local pipe = io.popen('echo -n "$(connectionStatus.sh eth0Default)"')
-    local value = pipe:read("*a")
-    pipe:close()
-    if value == 'true' then
-        widget:set_color(theme.bg_focus)
-        widget:set_background_color('#00C6ED')
-        return 100
-    else
-        widget:set_color(theme.bg_focus)
-        widget:set_background_color(theme.bg_normal)
-        return data["{linp}"]
-    end
-end
-
 local wifiWidget = awful.widget.progressbar()
 wifiWidget:set_width(widthProgressBar)
 wifiWidget:set_ticks(true)
@@ -185,7 +168,7 @@ wifiWidget:set_vertical(true)
 wifiWidget:set_background_color(theme.bg_normal)
 wifiWidget:set_border_color(nil)
 wifiWidget:set_color(theme.bg_focus)
-vicious.register(wifiWidget, vicious.widgets.wifi, wifiWidgetFormatter, 5, "wlan0")
+vicious.register(wifiWidget, vicious.widgets.wifi, '${linp}', 15, "wlan0")
 
 wifiWidgetTooltip = awful.tooltip({
     objects = { wifiWidget }, 
