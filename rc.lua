@@ -43,7 +43,7 @@ end
 beautiful.init("/home/uwe/.config/awesome/themes/zenburn-mod/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
-terminal = "urxvt"
+terminal = "urxvtc"
 editor = os.getenv("EDITOR") or "nano"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -457,4 +457,5 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 awful.util.spawn_with_shell("xbacklight -set 80")
 awful.util.spawn_with_shell("detect-thinkpad-dock.sh")
 awful.util.spawn_with_shell("run_once.sh gnome-screensaver")
+awful.util.spawn_with_shell("run_once.sh urxvtd -q -f -o")
 -- }}}
