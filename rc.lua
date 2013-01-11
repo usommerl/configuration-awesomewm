@@ -73,11 +73,8 @@ local layouts =
 -- }}}
 
 -- {{{ Wallpaper
-if beautiful.wallpaper then
-    for s = 1, screen.count() do
-        gears.wallpaper.tiled(beautiful.wallpaper, s)
-    end
-end
+local pattern = gears.color.create_linear_pattern("0,0:0,1080:0.1,#000000:1.0,#505050")
+gears.wallpaper.set(pattern)
 -- }}}
 
 -- {{{ Tags
