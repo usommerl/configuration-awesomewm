@@ -225,7 +225,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev       ),
     awful.key({ modkey,           }, "Right",  awful.tag.viewnext       ),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
-    awful.key({ modkey            }, "Pause",  function () awful.util.spawn_with_shell("gnome-screensaver-command -a") end),
+    awful.key({ modkey            }, "Pause",  function () awful.util.spawn_with_shell("slimlock") end),
     awful.key({},                    "#122",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1-") end),
     awful.key({},                    "#123",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1+") end),
     awful.key({ modkey            }, "b",      function () mywibox[mouse.screen].visible = not mywibox[mouse.screen].visible end),
@@ -452,7 +452,7 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 
 -- {{{ Autostart 
 awful.util.spawn_with_shell("xbacklight -set 80")
+awful.util.spawn_with_shell("amixer --quiet set Master 61%")
 awful.util.spawn_with_shell("detect-thinkpad-dock.sh")
-awful.util.spawn_with_shell("run_once.sh gnome-screensaver")
 awful.util.spawn_with_shell("run_once.sh urxvtd -q -f -o")
 -- }}}
