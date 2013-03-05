@@ -44,7 +44,7 @@ beautiful.init("/home/uwe/.config/awesome/themes/zenburn-mod/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "urxvtc"
-editor = os.getenv("EDITOR") or "nano"
+editor = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
 -- Default modkey.
@@ -198,7 +198,7 @@ for s = 1, screen.count() do
 
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
-    if s == 1 then right_layout:add(wibox.widget.systray()) end
+    -- if s == 1 then right_layout:add(wibox.widget.systray()) end
     right_layout:add(mytextclock)
 
     -- Now bring it all together (with the tasklist in the middle)
@@ -226,8 +226,8 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Right",  awful.tag.viewnext       ),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
     awful.key({ modkey            }, "Pause",  function () awful.util.spawn_with_shell("slock") end),
-    awful.key({},                    "#122",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1-") end),
-    awful.key({},                    "#123",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1+") end),
+    awful.key({},                    "#122",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1%-") end),
+    awful.key({},                    "#123",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1%+") end),
     awful.key({ modkey            }, "b",      function () mywibox[mouse.screen].visible = not mywibox[mouse.screen].visible end),
 
     awful.key({ modkey,           }, "j",
@@ -302,11 +302,6 @@ clientkeys = awful.util.table.join(
         function (c)
             c.maximized_horizontal = not c.maximized_horizontal
             c.maximized_vertical   = not c.maximized_vertical
-            if c.maximized_vertical and c.maximized_horizontal then
-              c.border_width = 0
-            else
-              c.border_width = beautiful.border_width
-            end
         end)
 )
 
@@ -367,6 +362,8 @@ awful.rules.rules = {
                      focus = awful.client.focus.filter,
                      keys = clientkeys,
                      buttons = clientbuttons } },
+    { rule = { properties = { maximized_horizontal, maximized_vertical } },
+      properties = { border_width = 0 } },
     { rule = { class = "Google-chrome" },
       properties = { tag = tags[1][1], switchtotag = true } },
     { rule = { class = "Firefox" },
@@ -378,9 +375,11 @@ awful.rules.rules = {
     { rule = { class = "DartEditor" },
       properties = { tag = tags[1][3] } },
     { rule = { class = "Dart Editor" },
-      properties = { tag = tags[1][3], switchtotag = true } },
+      properties = { tag = tags[1][3]} },
     { rule = { class="Eclipse" },
       properties = { tag = tags[1][3], switchtotag = true } },
+    { rule = { class = "jd-Main" },
+      properties = { tag = tags[1][5] } },
 }
 -- }}}
 
@@ -446,13 +445,23 @@ client.connect_signal("manage", function (c, startup)
     end
 end)
 
+function clientMaximized(client)
+    if client.maximized_vertical and client.maximized_horizontal then
+        client.border_width = 0
+    else
+        client.border_width = beautiful.border_width
+    end
+end
+
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+client.connect_signal("property::maximized_horizontal", clientMaximized)
+client.connect_signal("property::maximized_vertical", clientMaximized)
 -- }}}
 
 -- {{{ Autostart 
 awful.util.spawn_with_shell("xbacklight -set 80")
-awful.util.spawn_with_shell("amixer --quiet set Master 61%")
+awful.util.spawn_with_shell("amixer --quiet set Master 50%")
 awful.util.spawn_with_shell("detect-thinkpad-dock.sh")
 awful.util.spawn_with_shell("run_once.sh urxvtd -q -f -o")
 -- }}}
