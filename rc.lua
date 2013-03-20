@@ -445,7 +445,7 @@ client.connect_signal("manage", function (c, startup)
     end
 end)
 
-function clientMaximized(client)
+function hideBordersIfMaximized(client)
     if client.maximized_vertical and client.maximized_horizontal then
         client.border_width = 0
     else
@@ -453,10 +453,13 @@ function clientMaximized(client)
     end
 end
 
-client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
+client.connect_signal("focus", function(c) 
+                                  c.border_color = beautiful.border_focus
+                                  hideBordersIfMaximized(c)
+                               end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
-client.connect_signal("property::maximized_horizontal", clientMaximized)
-client.connect_signal("property::maximized_vertical", clientMaximized)
+client.connect_signal("property::maximized_horizontal", hideBordersIfMaximized)
+client.connect_signal("property::maximized_vertical", hideBordersIfMaximized)
 -- }}}
 
 -- {{{ Autostart 
