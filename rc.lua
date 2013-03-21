@@ -273,7 +273,11 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "n", awful.client.restore),
 
     -- Prompt
-    awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
+    awful.key({ modkey,           }, "r",  function () awful.prompt.run({prompt="Run:"},
+                                               mypromptbox[mouse.screen].widget,
+                                               check_for_terminal,
+                                               clean_for_completion,
+                                               awful.util.getdir("cache") .. "/history") end),
 
     awful.key({ modkey }, "x",
               function ()
@@ -369,8 +373,12 @@ awful.rules.rules = {
       properties = { tag = tags[1][1], switchtotag = true } },
     { rule = { class = "URxvt" },
       properties = { tag = tags[1][2], size_hints_honor = false, switchtotag = true } },
-    { rule = { instance = "vim", class = "URxvt" },
-      properties = { tag = tags[1][3] } },
+    { rule = { instance = "ncmpcpp", class = "URxvt" },
+      properties = { tag = tags[1][4], switchtotag = true } },
+    { rule = { class = "Vlc" },
+      properties = { tag = tags[1][4], switchtotag = true } },
+    { rule = { instance = "nvlc", class = "URxvt" },
+      properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { class = "DartEditor" },
       properties = { tag = tags[1][3] } },
     { rule = { class = "Dart Editor" },
@@ -452,6 +460,31 @@ function hideBordersIfMaximized(client)
     end
 end
 
+-- {{{ functions to help launch run commands in a terminal using ":" keyword 
+function check_for_terminal (command)
+   if command:sub(1,1) == ":" then
+       name,_ = command:sub(2):gsub("%s.*","")
+      command = terminal .. ' -name ' .. name .. ' -e ' .. command:sub(2)
+   end
+   awful.util.spawn(command)
+end
+   
+function clean_for_completion (command, cur_pos, ncomp, shell)
+   local term = false
+   if command:sub(1,1) == ":" then
+      term = true
+      command = command:sub(2)
+      cur_pos = cur_pos - 1
+   end
+   command, cur_pos =  awful.completion.shell(command, cur_pos,ncomp,shell)
+   if term == true then
+      command = ':' .. command
+      cur_pos = cur_pos + 1
+   end
+   return command, cur_pos
+end
+-- }}}
+
 client.connect_signal("focus", function(c) 
                                   c.border_color = beautiful.border_focus
                                   hideBordersIfMaximized(c)
@@ -462,8 +495,8 @@ client.connect_signal("property::maximized_vertical", hideBordersIfMaximized)
 -- }}}
 
 -- {{{ Autostart 
+awful.util.spawn_with_shell("run_once.sh urxvtd -q -f -o")
 awful.util.spawn_with_shell("xbacklight -set 80")
 awful.util.spawn_with_shell("amixer --quiet set Master 50%")
 awful.util.spawn_with_shell("detect-thinkpad-dock.sh")
-awful.util.spawn_with_shell("run_once.sh urxvtd -q -f -o")
 -- }}}
