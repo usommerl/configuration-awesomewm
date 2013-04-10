@@ -59,10 +59,10 @@ local layouts =
 {
     -- awful.layout.suit.floating,
     awful.layout.suit.tile,
-    awful.layout.suit.tile.left,
+    --awful.layout.suit.tile.left,
     awful.layout.suit.tile.bottom,
-    awful.layout.suit.tile.top,
-    -- awful.layout.suit.fair,
+    --awful.layout.suit.tile.top,
+    awful.layout.suit.fair,
     -- awful.layout.suit.fair.horizontal,
     -- awful.layout.suit.spiral,
     -- awful.layout.suit.spiral.dwindle,
@@ -495,7 +495,6 @@ client.connect_signal("property::maximized_vertical", hideBordersIfMaximized)
 -- }}}
 
 -- {{{ Autostart 
-awful.util.spawn_with_shell("run_once.sh urxvtd -q -f -o")
 awful.util.spawn_with_shell("xbacklight -set 80")
 awful.util.spawn_with_shell("amixer --quiet set Master 50%")
 awful.util.spawn_with_shell("detect-thinkpad-dock.sh")
