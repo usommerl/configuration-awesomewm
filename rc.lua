@@ -118,6 +118,29 @@ spacer:set_border_color(nil)
 local widthProgressBar = 7
 local ticksSize = 1
 
+--TODO: battery discharge rate widget
+--cat /sys/class/power_supply/BAT0/power_now
+
+--local dischargeRateWidget = awful.widget.progressbar()
+--dischargeRateWidget:set_width(widthProgressBar)
+--dischargeRateWidget:set_ticks(true)
+--dischargeRateWidget:set_ticks_size(ticksSize)
+--dischargeRateWidget:set_vertical(true)
+--dischargeRateWidget:set_background_color(theme.bg_normal)
+--dischargeRateWidget:set_color(theme.bg_focus)
+--vicious.register(dischargeRateWidget, vicious.widgets.bat, dischargeRateWidgetFormatter , 61, "BAT0")
+
+--dischargeRateWidgetTooltip = awful.tooltip({
+    --objects = { dischargeRateWidget }, 
+    --timer_function = 
+        --function()
+            --local pipe = io.popen('echo -n "$(acpi -a -b -i)"')
+            --local value = pipe:read("*a")
+            --pipe:close()
+            --return value
+        --end,
+--})
+
 -- Battery widget
 function batteryWidgetFormatter(widget, data)
     if data[2] >= 40 and data[2] <= 100 then
@@ -150,9 +173,17 @@ batteryWidgetTooltip = awful.tooltip({
     timer_function = 
         function()
             local pipe = io.popen('echo -n "$(acpi -a -b -i)"')
-            local value = pipe:read("*a")
+            local acpiResult = pipe:read("*a")
             pipe:close()
-            return value
+            if string.find(acpiResult,"Adapter 0: off") ~= nil then
+                local file = io.open("/sys/class/power_supply/BAT0/power_now", "rb")
+                if file then 
+                    local rate = file:read() / 1000000
+                    file:close() 
+                    return "Battery 0: Discharge Rate " .. rate .. " W\n" .. acpiResult
+                end
+            end
+            return acpiResult
         end,
 })
 
