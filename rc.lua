@@ -10,8 +10,97 @@ local beautiful = require("beautiful")
 -- Notification library
 local naughty = require("naughty")
 local menubar = require("menubar")
-
+-- vicious widgets
 local vicious = require("vicious")
+
+-- {{{ Custom functions
+function hideBordersIfMaximized(client)
+    if client.maximized_vertical and client.maximized_horizontal then
+        client.border_width = 0
+    else
+        client.border_width = beautiful.border_width
+    end
+end
+
+function check_for_terminal (command)
+   if command:sub(1,1) == ":" then
+       name,_ = command:sub(2):gsub("%s.*","")
+      command = terminal .. ' -name ' .. name .. ' -e ' .. command:sub(2)
+   end
+   awful.util.spawn(command)
+end
+   
+function clean_for_completion (command, cur_pos, ncomp, shell)
+   local term = false
+   if command:sub(1,1) == ":" then
+      term = true
+      command = command:sub(2)
+      cur_pos = cur_pos - 1
+   end
+   command, cur_pos =  awful.completion.shell(command, cur_pos,ncomp,shell)
+   if term == true then
+      command = ':' .. command
+      cur_pos = cur_pos + 1
+   end
+   return command, cur_pos
+end
+
+function dischargeRate()
+    local rate
+    local power_nowFile = io.open("/sys/class/power_supply/BAT0/power_now", "rb")
+    if power_nowFile then 
+        rate = power_nowFile:read() / 10^6
+        power_nowFile:close() 
+    else
+        local current_nowFile = io.open("/sys/class/power_supply/BAT0/current_now", "rb") 
+        local voltage_nowFile = io.open("/sys/class/power_supply/BAT0/voltage_now", "rb")
+        local current_now = current_nowFile:read()
+        current_nowFile:close()
+        local voltage_now = voltage_nowFile:read()
+        voltage_nowFile:close()
+        rate = (voltage_now * current_now) / 10^12
+    end
+    return rate
+end
+
+math.round = function(number, precision)
+    precision = precision or 0
+
+    local decimal = string.find(tostring(number), ".", nil, true);
+    
+    if ( decimal ) then 
+        local power = 10 ^ precision;
+        
+        if ( number >= 0 ) then 
+            number = math.floor(number * power + 0.5) / power;
+        else 
+            number = math.ceil(number * power - 0.5) / power;       
+        end
+        
+        -- convert number to string for formatting
+        number = tostring(number);          
+        
+        -- set cutoff
+        local cutoff = number:sub(decimal + 1 + precision);
+            
+        -- delete everything after the cutoff
+        number = number:gsub(cutoff, "");
+    else
+        -- number is an integer
+        if ( precision > 0 ) then
+            number = tostring(number);
+            
+            number = number .. ".";
+            
+            for i = 1,precision
+            do
+                number = number .. "0";
+            end
+        end
+    end     
+    return number;
+end
+--- }}}
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -118,30 +207,8 @@ spacer:set_border_color(nil)
 local widthProgressBar = 7
 local ticksSize = 1
 
---TODO: battery discharge rate widget
---cat /sys/class/power_supply/BAT0/power_now
-
---local dischargeRateWidget = awful.widget.progressbar()
---dischargeRateWidget:set_width(widthProgressBar)
---dischargeRateWidget:set_ticks(true)
---dischargeRateWidget:set_ticks_size(ticksSize)
---dischargeRateWidget:set_vertical(true)
---dischargeRateWidget:set_background_color(theme.bg_normal)
---dischargeRateWidget:set_color(theme.bg_focus)
---vicious.register(dischargeRateWidget, vicious.widgets.bat, dischargeRateWidgetFormatter , 61, "BAT0")
-
---dischargeRateWidgetTooltip = awful.tooltip({
-    --objects = { dischargeRateWidget }, 
-    --timer_function = 
-        --function()
-            --local pipe = io.popen('echo -n "$(acpi -a -b -i)"')
-            --local value = pipe:read("*a")
-            --pipe:close()
-            --return value
-        --end,
---})
-
 -- Battery widget
+local batteryWidgetUpdateInterval = 60
 function batteryWidgetFormatter(widget, data)
     if data[2] >= 40 and data[2] <= 100 then
         widget:set_color(theme.bg_focus)
@@ -149,6 +216,15 @@ function batteryWidgetFormatter(widget, data)
         widget:set_color("#FFCC00")
     elseif data[2] >= 0  and data[2] < 15   then
         widget:set_color("#CC0000")
+        if data[2] <= 3 and data[1] == '-' then
+            local pipe = io.popen('echo -n $(acpi -b | sed "s/Battery 0: //")')
+            local acpiResult = pipe:read("*a")
+            pipe:close()
+            naughty.notify({ preset = naughty.config.presets.critical,
+            title = "Battery critical",
+            timeout = batteryWidgetUpdateInterval - 10,
+            text =  acpiResult })
+        end
     end
 
     if data[1] == '+' then
@@ -159,6 +235,7 @@ function batteryWidgetFormatter(widget, data)
     return data[2]
 end
 
+
 local batteryWidget = awful.widget.progressbar()
 batteryWidget:set_width(widthProgressBar)
 batteryWidget:set_ticks(true)
@@ -166,7 +243,7 @@ batteryWidget:set_ticks_size(ticksSize)
 batteryWidget:set_vertical(true)
 batteryWidget:set_background_color(theme.bg_normal)
 batteryWidget:set_color(theme.bg_focus)
-vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter , 61, "BAT0")
+vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter , batteryWidgetUpdateInterval, "BAT0")
 
 batteryWidgetTooltip = awful.tooltip({
     objects = { batteryWidget }, 
@@ -176,12 +253,7 @@ batteryWidgetTooltip = awful.tooltip({
             local acpiResult = pipe:read("*a")
             pipe:close()
             if string.find(acpiResult,"Adapter 0: off") ~= nil then
-                local file = io.open("/sys/class/power_supply/BAT0/power_now", "rb")
-                if file then 
-                    local rate = file:read() / 1000000
-                    file:close() 
-                    return "Battery 0: Discharge Rate " .. rate .. " W\n" .. acpiResult
-                end
+                return "Battery 0: Discharge rate " .. math.round(dischargeRate(), 1) .. " W\n" .. acpiResult
             end
             return acpiResult
         end,
@@ -483,38 +555,6 @@ client.connect_signal("manage", function (c, startup)
     end
 end)
 
-function hideBordersIfMaximized(client)
-    if client.maximized_vertical and client.maximized_horizontal then
-        client.border_width = 0
-    else
-        client.border_width = beautiful.border_width
-    end
-end
-
--- {{{ functions to help launch run commands in a terminal using ":" keyword 
-function check_for_terminal (command)
-   if command:sub(1,1) == ":" then
-       name,_ = command:sub(2):gsub("%s.*","")
-      command = terminal .. ' -name ' .. name .. ' -e ' .. command:sub(2)
-   end
-   awful.util.spawn(command)
-end
-   
-function clean_for_completion (command, cur_pos, ncomp, shell)
-   local term = false
-   if command:sub(1,1) == ":" then
-      term = true
-      command = command:sub(2)
-      cur_pos = cur_pos - 1
-   end
-   command, cur_pos =  awful.completion.shell(command, cur_pos,ncomp,shell)
-   if term == true then
-      command = ':' .. command
-      cur_pos = cur_pos + 1
-   end
-   return command, cur_pos
-end
--- }}}
 
 client.connect_signal("focus", function(c) 
                                   c.border_color = beautiful.border_focus
@@ -524,6 +564,26 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 client.connect_signal("property::maximized_horizontal", hideBordersIfMaximized)
 client.connect_signal("property::maximized_vertical", hideBordersIfMaximized)
 -- }}}
+
+-- {{{ Timer
+dischargeRateTimer = timer({ timeout = 60 })
+dischargeRateTimer:connect_signal("timeout", 
+    function() 
+        local file = io.open("/sys/class/power_supply/AC/online", "rb")
+        local acStatus = file:read()
+        file:close()
+        if acStatus == '0' then
+            local rate = dischargeRate()
+            if rate > 17 then
+                naughty.notify({ preset = naughty.config.presets.critical,
+                title = "Discharge rate critical",
+                text = math.round(rate,1) .. " W" })
+            end
+        end
+    end)
+dischargeRateTimer:start()
+-- }}}
+
 
 -- {{{ Autostart 
 awful.util.spawn_with_shell("xbacklight -set 80")
