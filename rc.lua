@@ -1,3 +1,4 @@
+-- {{{ Import libraries
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
@@ -12,6 +13,7 @@ local naughty = require("naughty")
 local menubar = require("menubar")
 -- vicious widgets
 local vicious = require("vicious")
+--- }}}
 
 -- {{{ Custom functions
 function hideBordersIfMaximized(client)
@@ -311,6 +313,9 @@ for s = 1, screen.count() do
     layout:set_right(right_layout)
 
     mywibox[s]:set_widget(layout)
+    -- hide wibox
+    mywibox[s].visible = false
+    mywibox[s].ontop = true
 end
 -- }}}
 
@@ -376,11 +381,17 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "n", awful.client.restore),
 
     -- Prompt
-    awful.key({ modkey,           }, "r",  function () awful.prompt.run({prompt="Run:"},
-                                               mypromptbox[mouse.screen].widget,
-                                               check_for_terminal,
-                                               clean_for_completion,
-                                               awful.util.getdir("cache") .. "/history") end),
+    awful.key({ modkey,           }, "r",  function () 
+                                                mywibox[mouse.screen].visible = true
+                                                awful.prompt.run({prompt="Run:"},
+                                                    mypromptbox[mouse.screen].widget,
+                                                    check_for_terminal,
+                                                    clean_for_completion,
+                                                    awful.util.getdir("cache") .. "/history",
+                                                    nil,
+                                                    function () mywibox[mouse.screen].visible = false end
+                                                ) 
+                                           end),
 
     awful.key({ modkey }, "x",
               function ()
@@ -574,7 +585,7 @@ dischargeRateTimer:connect_signal("timeout",
         file:close()
         if acStatus == '0' then
             local rate = dischargeRate()
-            if rate > 17 then
+            if rate > 18 then
                 naughty.notify({ preset = naughty.config.presets.critical,
                 title = "Discharge rate critical",
                 text = math.round(rate,1) .. " W" })
@@ -583,7 +594,6 @@ dischargeRateTimer:connect_signal("timeout",
     end)
 dischargeRateTimer:start()
 -- }}}
-
 
 -- {{{ Autostart 
 awful.util.spawn_with_shell("xbacklight -set 80")
