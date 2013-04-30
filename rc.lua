@@ -485,20 +485,26 @@ awful.rules.rules = {
       properties = { tag = tags[1][1], switchtotag = true } },
     { rule = { class = "Firefox" },
       properties = { tag = tags[1][1], switchtotag = true } },
+    { rule = { class = "Opera" },
+      properties = { tag = tags[1][1], switchtotag = true } },
     { rule = { class = "URxvt" },
       properties = { tag = tags[1][2], size_hints_honor = false, switchtotag = true } },
-    { rule = { instance = "ncmpcpp", class = "URxvt" },
-      properties = { tag = tags[1][4], switchtotag = true } },
-    { rule = { class = "Vlc" },
-      properties = { tag = tags[1][4], switchtotag = true } },
-    { rule = { instance = "nvlc", class = "URxvt" },
-      properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { class = "DartEditor" },
       properties = { tag = tags[1][3] } },
     { rule = { class = "Dart Editor" },
       properties = { tag = tags[1][3]} },
     { rule = { class="Eclipse" },
       properties = { tag = tags[1][3], switchtotag = true } },
+    { rule = { instance = "ncmpcpp", class = "URxvt" },
+      properties = { tag = tags[1][4], switchtotag = true } },
+    { rule = { class = "Easytag" },
+      properties = { tag = tags[1][4], switchtotag = true } },
+    { rule = { class = "Vlc" },
+      properties = { tag = tags[1][4], switchtotag = true } },
+    { rule = { instance = "nvlc", class = "URxvt" },
+      properties = { tag = tags[1][4], switchtotag = true } },
+    { rule = { instance = "rtorrent", class = "URxvt" },
+      properties = { tag = tags[1][5], switchtotag = false } },
     { rule = { class = "jd-Main" },
       properties = { tag = tags[1][5] } },
 }
@@ -598,5 +604,5 @@ dischargeRateTimer:start()
 -- {{{ Autostart 
 awful.util.spawn_with_shell("xbacklight -set 80")
 awful.util.spawn_with_shell("amixer --quiet set Master 50%")
-awful.util.spawn_with_shell("detect-thinkpad-dock.sh")
+awful.util.spawn_with_shell("thinkpad-dock.sh")
 -- }}}
