@@ -333,7 +333,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev       ),
     awful.key({ modkey,           }, "Right",  awful.tag.viewnext       ),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
-    awful.key({ modkey            }, "Pause",  function () awful.util.spawn_with_shell("slock") end),
+    awful.key({ modkey            }, "Pause",  function () awful.util.spawn_with_shell("i3lock -c 000000") end),
     awful.key({},                    "#122",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1%-") end),
     awful.key({},                    "#123",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1%+") end),
     awful.key({ modkey            }, "p",      function () awful.util.spawn_with_shell("ncmpcpp toggle") end),
@@ -583,7 +583,8 @@ client.connect_signal("property::maximized_vertical", hideBordersIfMaximized)
 -- }}}
 
 -- {{{ Timer
-dischargeRateTimer = timer({ timeout = 60 })
+dischargeRateTimerInterval = 60
+dischargeRateTimer = timer({ timeout = dischargeRateTimerInterval })
 dischargeRateTimer:connect_signal("timeout", 
     function() 
         local file = io.open("/sys/class/power_supply/AC/online", "rb")
@@ -594,6 +595,7 @@ dischargeRateTimer:connect_signal("timeout",
             if rate > 18 then
                 naughty.notify({ preset = naughty.config.presets.critical,
                 title = "Discharge rate critical",
+                timeout = dischargeRateTimerInterval - 10,
                 text = math.round(rate,1) .. " W" })
             end
         end
