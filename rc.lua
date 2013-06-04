@@ -16,6 +16,37 @@ local vicious = require("vicious")
 --- }}}
 
 -- {{{ Custom functions
+
+function tableLength(table)
+  local count = 0
+  for _ in pairs(table) do count = count + 1 end
+  return count
+end
+
+function menu_center_coords(numberOfMenuItems)
+   local s_geometry = screen[mouse.screen].workarea
+   local menu_height = numberOfMenuItems * theme.menu_height +  2 * theme.border_width
+   local menu_x = (s_geometry.width - theme.menu_width) / 2 + s_geometry.x
+   local menu_y = (s_geometry.height - menu_height ) / 2 + s_geometry.y - 100
+   return {["x"] = menu_x, ["y"] = menu_y}
+end
+
+function show_minimized_clients()                           
+    local menuItems = {}
+    for i, c in pairs(client.get(mouse.screen)) do
+        if c.minimized then
+            table.insert(menuItems,
+                         {c.name,
+                          function() 
+                              awful.tag.viewonly(c:tags()[1])          
+                              client.focus = c                         
+                          end
+                         })
+        end
+    end                                               
+    awful.menu(menuItems):show({coords = menu_center_coords(tableLength(menuItems) - 1)})
+end                                                 
+
 function hideBordersIfMaximized(client)
     if client.maximized_vertical and client.maximized_horizontal then
         client.border_width = 0
@@ -63,6 +94,42 @@ function dischargeRate()
         rate = (voltage_now * current_now) / 10^12
     end
     return rate
+end
+
+function table.val_to_str ( v )
+  if "string" == type( v ) then
+    v = string.gsub( v, "\n", "\\n" )
+    if string.match( string.gsub(v,"[^'\"]",""), '^"+$' ) then
+      return "'" .. v .. "'"
+    end
+    return '"' .. string.gsub(v,'"', '\\"' ) .. '"'
+  else
+    return "table" == type( v ) and table.tostring( v ) or
+      tostring( v )
+  end
+end
+
+function table.key_to_str ( k )
+  if "string" == type( k ) and string.match( k, "^[_%a][_%a%d]*$" ) then
+    return k
+  else
+    return "[" .. table.val_to_str( k ) .. "]"
+  end
+end
+
+function table.tostring( tbl )
+  local result, done = {}, {}
+  for k, v in ipairs( tbl ) do
+    table.insert( result, table.val_to_str( v ) )
+    done[ k ] = true
+  end
+  for k, v in pairs( tbl ) do
+    if not done[ k ] then
+      table.insert( result,
+        table.key_to_str( k ) .. "=" .. table.val_to_str( v ) )
+    end
+  end
+  return "{" .. table.concat( result, "\n" ) .. "}"
 end
 
 math.round = function(number, precision)
@@ -210,7 +277,6 @@ local widthProgressBar = 7
 local ticksSize = 1
 
 -- Battery widget
-local batteryWidgetUpdateInterval = 60
 function batteryWidgetFormatter(widget, data)
     if data[2] >= 40 and data[2] <= 100 then
         widget:set_color(theme.bg_focus)
@@ -224,7 +290,7 @@ function batteryWidgetFormatter(widget, data)
             pipe:close()
             naughty.notify({ preset = naughty.config.presets.critical,
             title = "Battery critical",
-            timeout = batteryWidgetUpdateInterval - 10,
+            timeout = 10,
             text =  acpiResult })
         end
     end
@@ -245,7 +311,7 @@ batteryWidget:set_ticks_size(ticksSize)
 batteryWidget:set_vertical(true)
 batteryWidget:set_background_color(theme.bg_normal)
 batteryWidget:set_color(theme.bg_focus)
-vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter , batteryWidgetUpdateInterval, "BAT0")
+vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter , 60, "BAT0")
 
 batteryWidgetTooltip = awful.tooltip({
     objects = { batteryWidget }, 
@@ -327,6 +393,10 @@ root.buttons(awful.util.table.join(
 -- }}}
 
 -- {{{ Key bindings
+
+awful.menu.menu_keys.down = {"j", "Down"}
+awful.menu.menu_keys.up   = {"k", "Up"}
+
 globalkeys = awful.util.table.join(
     awful.key({ modkey, "Mod1"    }, "j",      awful.tag.viewprev       ),
     awful.key({ modkey, "Mod1"    }, "k",      awful.tag.viewnext       ),
@@ -378,7 +448,8 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "space", function () awful.layout.inc(layouts,  1) end),
     awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(layouts, -1) end),
 
-    awful.key({ modkey, "Control" }, "n", awful.client.restore),
+    awful.key({ modkey, "Control" }, "n", show_minimized_clients),
+    awful.key({ modkey, "Control", "Shift" }, "n", awful.client.restore),
 
     -- Prompt
     awful.key({ modkey,           }, "r",  function () 
@@ -497,12 +568,16 @@ awful.rules.rules = {
       properties = { tag = tags[1][3], switchtotag = true } },
     { rule = { instance = "ncmpcpp", class = "URxvt" },
       properties = { tag = tags[1][4], switchtotag = true } },
+    { rule = { instance = "alsamixer", class = "URxvt" },
+      properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { class = "Easytag" },
       properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { class = "Vlc" },
       properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { instance = "nvlc", class = "URxvt" },
       properties = { tag = tags[1][4], switchtotag = true } },
+    { rule = { class = "Skype" },
+      properties = { tag = tags[1][5], switchtotag = false } },
     { rule = { instance = "rtorrent", class = "URxvt" },
       properties = { tag = tags[1][5], switchtotag = false } },
     { rule = { class = "jd-Main" },
@@ -583,8 +658,7 @@ client.connect_signal("property::maximized_vertical", hideBordersIfMaximized)
 -- }}}
 
 -- {{{ Timer
-dischargeRateTimerInterval = 60
-dischargeRateTimer = timer({ timeout = dischargeRateTimerInterval })
+dischargeRateTimer = timer({ timeout = 60 })
 dischargeRateTimer:connect_signal("timeout", 
     function() 
         local file = io.open("/sys/class/power_supply/AC/online", "rb")
@@ -595,7 +669,7 @@ dischargeRateTimer:connect_signal("timeout",
             if rate > 18 then
                 naughty.notify({ preset = naughty.config.presets.critical,
                 title = "Discharge rate critical",
-                timeout = dischargeRateTimerInterval - 10,
+                timeout = 10,
                 text = math.round(rate,1) .. " W" })
             end
         end
@@ -604,7 +678,7 @@ dischargeRateTimer:start()
 -- }}}
 
 -- {{{ Autostart 
-awful.util.spawn_with_shell("xbacklight -set 80")
 awful.util.spawn_with_shell("amixer --quiet set Master 50%")
 awful.util.spawn_with_shell("thinkpad-dock.sh")
+awful.util.spawn_with_shell("skype")
 -- }}}

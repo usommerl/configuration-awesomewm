@@ -6,6 +6,7 @@ theme.fg_normal = "#CCCCCC"
 theme.fg_focus  = "#EEEEEE"
 theme.bg_normal = "#222222"
 theme.bg_focus  = "#444444"
+theme.bg_urgent = "#CC0000"
 
 theme.border_width  = "1"
 
@@ -20,5 +21,7 @@ end
 -- Simply use the files from zenburn and desaturate the colors
 theme.taglist_squares_sel   = "/home/uwe/.config/awesome/themes/zenburn-mod/taglist/squarefz.png"
 theme.taglist_squares_unsel = "/home/uwe/.config/awesome/themes/zenburn-mod/taglist/squarez.png"
+
+theme.menu_width  = 650
 
 return theme
