@@ -17,6 +17,13 @@ local vicious = require("vicious")
 
 -- {{{ Custom functions
 
+function logEffectivePowerConsumption(effectivePower)
+   local file = io.open("/var/log/effective_power_consumption.log", "a")
+   local date = os.date("%Y-%m-%dT%H:%M:%S%z", os.time())
+   file:write(date .. "   " .. effectivePower .. "\n")
+   file:close()
+end
+
 function tableLength(table)
   local count = 0
   for _ in pairs(table) do count = count + 1 end
@@ -40,6 +47,7 @@ function show_minimized_clients()
                           function() 
                               awful.tag.viewonly(c:tags()[1])          
                               client.focus = c                         
+                              if client.focus then client.focus:raise() end
                           end
                          })
         end
@@ -78,7 +86,7 @@ function clean_for_completion (command, cur_pos, ncomp, shell)
    return command, cur_pos
 end
 
-function dischargeRate()
+function effectivePower()
     local rate
     local power_nowFile = io.open("/sys/class/power_supply/BAT0/power_now", "rb")
     if power_nowFile then 
@@ -321,7 +329,7 @@ batteryWidgetTooltip = awful.tooltip({
             local acpiResult = pipe:read("*a")
             pipe:close()
             if string.find(acpiResult,"Adapter 0: off") ~= nil then
-                return "Battery 0: Discharge rate " .. math.round(dischargeRate(), 1) .. " W\n" .. acpiResult
+                return "Battery 0: effective power consumption " .. math.round(effectivePower(), 1) .. " W\n" .. acpiResult
             end
             return acpiResult
         end,
@@ -658,27 +666,27 @@ client.connect_signal("property::maximized_vertical", hideBordersIfMaximized)
 -- }}}
 
 -- {{{ Timer
-dischargeRateTimer = timer({ timeout = 60 })
-dischargeRateTimer:connect_signal("timeout", 
+effectivePowerConsumptionTimer = timer({ timeout = 60 })
+effectivePowerConsumptionTimer:connect_signal("timeout", 
     function() 
         local file = io.open("/sys/class/power_supply/AC/online", "rb")
         local acStatus = file:read()
         file:close()
         if acStatus == '0' then
-            local rate = dischargeRate()
-            if rate > 18 then
+            local effectivePower = effectivePower()
+            logEffectivePowerConsumption(effectivePower)
+            if effectivePower > 25 then
                 naughty.notify({ preset = naughty.config.presets.critical,
-                title = "Discharge rate critical",
-                timeout = 10,
-                text = math.round(rate,1) .. " W" })
+                title = "effective power consumption critical",
+                timeout = 3,
+                text = math.round(effectivePower,1) .. " W" })
             end
         end
     end)
-dischargeRateTimer:start()
+effectivePowerConsumptionTimer:start()
 -- }}}
 
 -- {{{ Autostart 
-awful.util.spawn_with_shell("amixer --quiet set Master 50%")
 awful.util.spawn_with_shell("thinkpad-dock.sh")
 awful.util.spawn_with_shell("skype")
 -- }}}
