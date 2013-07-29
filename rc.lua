@@ -17,6 +17,13 @@ local vicious = require("vicious")
 
 -- {{{ Custom functions
 
+function debug(message)
+   naughty.notify({ preset = naughty.config.presets.critical,
+   title = "Debug",
+   timeout = 10,
+   text = message})
+end
+
 function logEffectivePowerConsumption(effectivePower)
    local file = io.open("/var/log/effective_power_consumption.log", "a")
    local date = os.date("%Y-%m-%dT%H:%M:%S%z", os.time())
@@ -47,7 +54,7 @@ function show_minimized_clients()
                           function() 
                               awful.tag.viewonly(c:tags()[1])          
                               client.focus = c                         
-                              if client.focus then client.focus:raise() end
+                              c:raise()
                           end
                          })
         end
@@ -63,15 +70,15 @@ function hideBordersIfMaximized(client)
     end
 end
 
-function check_for_terminal (command)
+function check_for_terminal(command)
    if command:sub(1,1) == ":" then
-       name,_ = command:sub(2):gsub("%s.*","")
+      name,_  = command:sub(2):gsub("%s.*","")
       command = terminal .. ' -name ' .. name .. ' -e ' .. command:sub(2)
    end
    awful.util.spawn(command)
 end
-   
-function clean_for_completion (command, cur_pos, ncomp, shell)
+  
+function clean_for_completion(command, cur_pos, ncomp, shell)
    local term = false
    if command:sub(1,1) == ":" then
       term = true
@@ -406,10 +413,6 @@ awful.menu.menu_keys.down = {"j", "Down"}
 awful.menu.menu_keys.up   = {"k", "Up"}
 
 globalkeys = awful.util.table.join(
-    awful.key({ modkey, "Mod1"    }, "j",      awful.tag.viewprev       ),
-    awful.key({ modkey, "Mod1"    }, "k",      awful.tag.viewnext       ),
-    awful.key({ modkey,           }, "Left",   awful.tag.viewprev       ),
-    awful.key({ modkey,           }, "Right",  awful.tag.viewnext       ),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
     awful.key({ modkey            }, "Pause",  function () awful.util.spawn_with_shell("i3lock -c 000000") end),
     awful.key({},                    "#122",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1%-") end),
@@ -467,8 +470,10 @@ globalkeys = awful.util.table.join(
                                                     check_for_terminal,
                                                     clean_for_completion,
                                                     awful.util.getdir("cache") .. "/history",
+                                                    500,
+                                                    function () mywibox[mouse.screen].visible = false end,
                                                     nil,
-                                                    function () mywibox[mouse.screen].visible = false end
+                                                    nil
                                                 ) 
                                            end),
 
@@ -488,6 +493,7 @@ clientkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
     awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
     awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end),
+    awful.key({ modkey,           }, "s",      function (c) c.sticky = not c.sticky          end),
     awful.key({ modkey,           }, "n",
         function (c)
             -- The client currently has the input focus, so it cannot be
@@ -560,34 +566,38 @@ awful.rules.rules = {
                      buttons = clientbuttons } },
     { rule = { properties = { maximized_horizontal, maximized_vertical } },
       properties = { border_width = 0 } },
+    { rule = { class = "URxvt" },
+      properties = { tag = tags[1][2], size_hints_honor = false, switchtotag = true } },
     { rule = { class = "Google-chrome" },
       properties = { tag = tags[1][1], switchtotag = true } },
     { rule = { class = "Firefox" },
       properties = { tag = tags[1][1], switchtotag = true } },
     { rule = { class = "Opera" },
       properties = { tag = tags[1][1], switchtotag = true } },
-    { rule = { class = "URxvt" },
-      properties = { tag = tags[1][2], size_hints_honor = false, switchtotag = true } },
     { rule = { class = "DartEditor" },
       properties = { tag = tags[1][3] } },
     { rule = { class = "Dart Editor" },
       properties = { tag = tags[1][3]} },
     { rule = { class="Eclipse" },
-      properties = { tag = tags[1][3], switchtotag = true } },
+      properties = { tag = tags[1][3] } },
     { rule = { instance = "ncmpcpp", class = "URxvt" },
-      properties = { tag = tags[1][4], switchtotag = true } },
+      properties = { tag = tags[1][4] } },
     { rule = { instance = "alsamixer", class = "URxvt" },
-      properties = { tag = tags[1][4], switchtotag = true } },
+      properties = { tag = tags[1][4] } },
     { rule = { class = "Easytag" },
       properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { class = "Vlc" },
       properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { instance = "nvlc", class = "URxvt" },
+      properties = { tag = tags[1][4] } },
+    { rule = { class = "mplayer2" },
       properties = { tag = tags[1][4], switchtotag = true } },
+    { rule = { instance = "mplayer", class = "URxvt" },
+      properties = { tag = tags[1][4] } },
     { rule = { class = "Skype" },
       properties = { tag = tags[1][5], switchtotag = false } },
     { rule = { instance = "rtorrent", class = "URxvt" },
-      properties = { tag = tags[1][5], switchtotag = false } },
+      properties = { tag = tags[1][5] } },
     { rule = { class = "jd-Main" },
       properties = { tag = tags[1][5] } },
 }
