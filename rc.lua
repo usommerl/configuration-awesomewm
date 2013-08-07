@@ -184,6 +184,25 @@ math.round = function(number, precision)
     end     
     return number;
 end
+
+-- TODO Modify path or query xrdb directly?
+function setBorderColor(theme, status)
+    --debug(os.getenv("BROWSER"))
+    local color
+    local filename = "/home/uwe/.config/awesome/themes/border_" .. status .. ".gen"
+    local file = io.open(filename, "r")
+        if file then
+            color = file:read("*line")
+            file:close()
+        end
+    if color then
+        if status == "focus" then
+            theme.border_focus = color
+        elseif status == "normal" then
+            theme.border_normal = color
+        end
+    end
+end
 --- }}}
 
 -- {{{ Error handling
@@ -213,7 +232,10 @@ end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
-beautiful.init("/home/uwe/.config/awesome/themes/zenburn-mod/theme.lua")
+beautiful.init(awful.util.getdir("config") .. "/themes/zenburn-mod/theme.lua")
+-- Reset border colors according to current URxvt colorscheme
+setBorderColor(theme,"focus")
+setBorderColor(theme,"normal")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "urxvtc"
