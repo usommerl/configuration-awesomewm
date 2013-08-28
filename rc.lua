@@ -438,7 +438,9 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
     awful.key({ modkey            }, "Pause",  function () awful.util.spawn_with_shell("i3lock -c 000000") end),
     awful.key({},                    "#122",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1%-") end),
+    awful.key({ modkey},             "-",      function () awful.util.spawn_with_shell("amixer --quiet set Master 1%-") end),
     awful.key({},                    "#123",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1%+") end),
+    awful.key({ modkey},             "+",      function () awful.util.spawn_with_shell("amixer --quiet set Master 1%+") end),
     awful.key({ modkey            }, "p",      function () awful.util.spawn_with_shell("ncmpcpp toggle") end),
     awful.key({ modkey            }, "b",      function () mywibox[mouse.screen].visible = not mywibox[mouse.screen].visible end),
 
