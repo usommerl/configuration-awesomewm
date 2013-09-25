@@ -24,6 +24,15 @@ function debug(message)
    text = message})
 end
 
+function run_once(cmd)
+  findme = cmd
+  firstspace = cmd:find(" ")
+  if firstspace then
+    findme = cmd:sub(0, firstspace-1)
+  end
+  awful.util.spawn_with_shell("pgrep -u $USER -x " .. findme .. " > /dev/null || (" .. cmd .. ")")
+end
+
 function logEffectivePowerConsumption(effectivePower)
    local file = io.open("/var/log/effective_power_consumption.log", "a")
    local date = os.date("%Y-%m-%dT%H:%M:%S%z", os.time())
@@ -723,4 +732,6 @@ effectivePowerConsumptionTimer:start()
 -- {{{ Autostart 
 awful.util.spawn_with_shell("thinkpad-dock.sh")
 awful.util.spawn_with_shell("skype")
+awful.util.spawn_with_shell("xbacklight -set 80")
+run_once("urxvtd -q -f -o")
 -- }}}
