@@ -64,6 +64,13 @@ function show_minimized_clients()
                               awful.tag.viewonly(c:tags()[1])          
                               client.focus = c                         
                               c:raise()
+                              -- For a short period after client.focus the number
+                              -- of visible clients is 0. Therefore the
+                              -- hideBordersIfOnlyOneClientVisible()
+                              -- method fails in this particular case.
+                              if (#awful.client.visible(mouse.screen) == 0) then
+                                  c.border_width = 0
+                              end
                           end
                          })
         end
@@ -71,10 +78,23 @@ function show_minimized_clients()
     awful.menu(menuItems):show({coords = menu_center_coords(tableLength(menuItems) - 1)})
 end                                                 
 
+function hideBordersIfOnlyOneClientVisible()
+  local visibleClients = awful.client.visible(mouse.screen)
+  if #visibleClients == 1 then
+      local client = visibleClients[1]
+      client.border_width = 0
+  end
+end
+
 function hideBordersIfMaximized(client)
     if client.maximized_vertical and client.maximized_horizontal then
         client.border_width = 0
-    else
+    end
+end
+
+
+function restoreBordersIfNotMaximized(client)
+    if not client.maximized_vertical and not client.maximized_horizontal then
         client.border_width = beautiful.border_width
     end
 end
@@ -263,11 +283,11 @@ local layouts =
 {
     -- awful.layout.suit.floating,
     awful.layout.suit.tile,
-    --awful.layout.suit.tile.left,
+    awful.layout.suit.tile.left,
     awful.layout.suit.tile.bottom,
-    --awful.layout.suit.tile.top,
+    awful.layout.suit.tile.top,
     awful.layout.suit.fair,
-    -- awful.layout.suit.fair.horizontal,
+    awful.layout.suit.fair.horizontal,
     -- awful.layout.suit.spiral,
     -- awful.layout.suit.spiral.dwindle,
     -- awful.layout.suit.max,
@@ -698,14 +718,26 @@ client.connect_signal("manage", function (c, startup)
     end
 end)
 
-
 client.connect_signal("focus", function(c) 
                                   c.border_color = beautiful.border_focus
+                                  c.border_width = beautiful.border_width
+                                  hideBordersIfOnlyOneClientVisible()
                                   hideBordersIfMaximized(c)
                                end)
-client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
-client.connect_signal("property::maximized_horizontal", hideBordersIfMaximized)
-client.connect_signal("property::maximized_vertical", hideBordersIfMaximized)
+client.connect_signal("unfocus", function(c) 
+                                 c.border_color = beautiful.border_normal 
+                                 c.border_width = beautiful.border_width
+                               end)
+client.connect_signal("property::maximized_horizontal", function(c) 
+                                                           restoreBordersIfNotMaximized(c)
+                                                           hideBordersIfMaximized(c)
+                                                           hideBordersIfOnlyOneClientVisible()
+                                                        end)
+client.connect_signal("property::maximized_vertical", function(c) 
+                                                           restoreBordersIfNotMaximized(c)
+                                                           hideBordersIfMaximized(c)
+                                                           hideBordersIfOnlyOneClientVisible()
+                                                      end)
 -- }}}
 
 -- {{{ Timer
