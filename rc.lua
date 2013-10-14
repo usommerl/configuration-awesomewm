@@ -623,6 +623,8 @@ awful.rules.rules = {
       properties = { tag = tags[1][2], size_hints_honor = false, switchtotag = true } },
     { rule = { class = "Google-chrome" },
       properties = { tag = tags[1][1], switchtotag = true } },
+    { rule = { class = "Google-chrome-beta" },
+      properties = { tag = tags[1][1], switchtotag = true } },
     { rule = { class = "Firefox" },
       properties = { tag = tags[1][1], switchtotag = true } },
     { rule = { class = "Opera" },
