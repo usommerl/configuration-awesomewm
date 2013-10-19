@@ -517,6 +517,7 @@ globalkeys = awful.util.table.join(
 
     -- Prompt
     awful.key({ modkey,           }, "r",  function () 
+                                                local wiboxVisibleBeforeExecution = mywibox[mouse.screen].visible
                                                 mywibox[mouse.screen].visible = true
                                                 awful.prompt.run({prompt="Run:"},
                                                     mypromptbox[mouse.screen].widget,
@@ -524,7 +525,7 @@ globalkeys = awful.util.table.join(
                                                     clean_for_completion,
                                                     awful.util.getdir("cache") .. "/history",
                                                     500,
-                                                    function () mywibox[mouse.screen].visible = false end,
+                                                    function () mywibox[mouse.screen].visible = wiboxVisibleBeforeExecution end,
                                                     nil,
                                                     nil
                                                 ) 
