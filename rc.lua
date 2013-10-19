@@ -635,6 +635,9 @@ awful.rules.rules = {
       properties = { tag = tags[1][3]} },
     { rule = { class="Eclipse" },
       properties = { tag = tags[1][3] } },
+    -- Splash screen of Eclipse Keppler
+    { rule = { class="Java" },
+      properties = { tag = tags[1][3] } },
     { rule = { instance = "ncmpcpp", class = "URxvt" },
       properties = { tag = tags[1][4] } },
     { rule = { instance = "alsamixer", class = "URxvt" },
