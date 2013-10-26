@@ -771,5 +771,4 @@ effectivePowerConsumptionTimer:start()
 awful.util.spawn_with_shell("thinkpad-dock.sh")
 awful.util.spawn_with_shell("skype")
 awful.util.spawn_with_shell("xbacklight -set 80")
-run_once("urxvtd -q -f -o")
 -- }}}
