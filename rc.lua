@@ -33,6 +33,26 @@ function run_once(cmd)
   awful.util.spawn_with_shell("pgrep -u $USER -x " .. findme .. " > /dev/null || (" .. cmd .. ")")
 end
 
+-- starts a terminal in the current working directory
+-- update the working directory in your zsh precmd hook
+function startTerminal()
+    local home = os.getenv("HOME")
+    local file = io.open(home .. "/.urxvt/start_directory", "r")
+    if file then
+        local directory = file:read()
+        if directory then
+            awful.util.spawn(terminal .. " -cd " .. directory)
+            return
+        end
+    end
+    awful.util.spawn(terminal)
+end
+
+-- resets the terminal working directory at awesome startup
+function resetTerminalStartDirectory()
+    awful.util.spawn_with_shell("cat $HOME > $HOME/.urxvt/start_directory")
+end
+
 function logEffectivePowerConsumption(effectivePower)
    local file = io.open("/var/log/effective_power_consumption.log", "a")
    local date = os.date("%Y-%m-%dT%H:%M:%S%z", os.time())
@@ -499,7 +519,7 @@ globalkeys = awful.util.table.join(
         end),
 
     -- Standard program
-    awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
+    awful.key({ modkey,           }, "Return", startTerminal),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
 
@@ -771,4 +791,5 @@ effectivePowerConsumptionTimer:start()
 awful.util.spawn_with_shell("thinkpad-dock.sh")
 awful.util.spawn_with_shell("skype")
 awful.util.spawn_with_shell("xbacklight -set 80")
+resetTerminalStartDirectory()
 -- }}}
