@@ -646,6 +646,8 @@ awful.rules.rules = {
       properties = { tag = tags[1][1], switchtotag = true } },
     { rule = { class = "Google-chrome-beta" },
       properties = { tag = tags[1][1], switchtotag = true } },
+    { rule = { class = "Chromium" },
+      properties = { tag = tags[1][1], switchtotag = true } },
     { rule = { class = "Firefox" },
       properties = { tag = tags[1][1], switchtotag = true } },
     { rule = { class = "Opera" },
