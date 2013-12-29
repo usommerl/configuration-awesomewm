@@ -673,6 +673,8 @@ awful.rules.rules = {
       properties = { tag = tags[1][4] } },
     { rule = { class = "mplayer2" },
       properties = { tag = tags[1][4], switchtotag = true } },
+    { rule = { class = "MPlayer" },
+      properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { instance = "mplayer", class = "URxvt" },
       properties = { tag = tags[1][4] } },
     { rule = { class = "Skype" },
