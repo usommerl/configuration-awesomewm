@@ -21,7 +21,7 @@ function debug(message)
    naughty.notify({ preset = naughty.config.presets.critical,
    title = "Debug",
    timeout = 10,
-   text = message})
+   text = tostring(message)})
 end
 
 function run_once(cmd)
@@ -74,15 +74,15 @@ function menu_center_coords(numberOfMenuItems)
    return {["x"] = menu_x, ["y"] = menu_y}
 end
 
-function show_minimized_clients()                           
+function show_minimized_clients()
     local menuItems = {}
     for i, c in pairs(client.get(mouse.screen)) do
         if c.minimized then
             table.insert(menuItems,
                          {c.name,
-                          function() 
-                              awful.tag.viewonly(c:tags()[1])          
-                              client.focus = c                         
+                          function()
+                              awful.tag.viewonly(c:tags()[1])
+                              client.focus = c
                               c:raise()
                               -- For a short period after client.focus the number
                               -- of visible clients is 0. Therefore the
@@ -94,9 +94,9 @@ function show_minimized_clients()
                           end
                          })
         end
-    end                                               
+    end
     awful.menu(menuItems):show({coords = menu_center_coords(tableLength(menuItems) - 1)})
-end                                                 
+end
 
 function hideBordersIfOnlyOneClientVisible()
   local visibleClients = awful.client.visible(mouse.screen)
@@ -126,7 +126,7 @@ function check_for_terminal(command)
    end
    awful.util.spawn(command)
 end
-  
+
 function clean_for_completion(command, cur_pos, ncomp, shell)
    local term = false
    if command:sub(1,1) == ":" then
@@ -145,11 +145,11 @@ end
 function effectivePower()
     local rate
     local power_nowFile = io.open("/sys/class/power_supply/BAT0/power_now", "rb")
-    if power_nowFile then 
+    if power_nowFile then
         rate = power_nowFile:read() / 10^6
-        power_nowFile:close() 
+        power_nowFile:close()
     else
-        local current_nowFile = io.open("/sys/class/power_supply/BAT0/current_now", "rb") 
+        local current_nowFile = io.open("/sys/class/power_supply/BAT0/current_now", "rb")
         local voltage_nowFile = io.open("/sys/class/power_supply/BAT0/voltage_now", "rb")
         local current_now = current_nowFile:read()
         current_nowFile:close()
@@ -200,56 +200,60 @@ math.round = function(number, precision)
     precision = precision or 0
 
     local decimal = string.find(tostring(number), ".", nil, true);
-    
-    if ( decimal ) then 
+
+    if ( decimal ) then
         local power = 10 ^ precision;
-        
-        if ( number >= 0 ) then 
+
+        if ( number >= 0 ) then
             number = math.floor(number * power + 0.5) / power;
-        else 
-            number = math.ceil(number * power - 0.5) / power;       
+        else
+            number = math.ceil(number * power - 0.5) / power;
         end
-        
+
         -- convert number to string for formatting
-        number = tostring(number);          
-        
+        number = tostring(number);
+
         -- set cutoff
         local cutoff = number:sub(decimal + 1 + precision);
-            
+
         -- delete everything after the cutoff
         number = number:gsub(cutoff, "");
     else
         -- number is an integer
         if ( precision > 0 ) then
             number = tostring(number);
-            
+
             number = number .. ".";
-            
+
             for i = 1,precision
             do
                 number = number .. "0";
             end
         end
-    end     
+    end
     return number;
 end
 
--- TODO Modify path or query xrdb directly?
-function setBorderColor(theme, status)
-    --debug(os.getenv("BROWSER"))
-    local color
-    local filename = "/home/uwe/.config/awesome/themes/border_" .. status .. ".gen"
-    local file = io.open(filename, "r")
-        if file then
-            color = file:read("*line")
-            file:close()
-        end
-    if color then
-        if status == "focus" then
-            theme.border_focus = color
-        elseif status == "normal" then
-            theme.border_normal = color
-        end
+function isRGB(string)
+    local matchShort = string.match(string, '#[a-zA-z0-9][a-zA-z0-9][a-zA-z0-9]')
+    local matchLong = string.match(string, '#[a-zA-z0-9][a-zA-z0-9][a-zA-z0-9][a-zA-z0-9][a-zA-z0-9][a-zA-z0-9]')
+    return ( matchShort ~= nil or matchLong ~= nil )
+end
+
+function setBorderColor(theme)
+    local pipe = io.popen('appres URxvt')
+    local result = pipe:read("*a")
+    pipe:close()
+    local bgColor = string.gsub(result, ".*\n%*background:%s*",""):gsub("%s*\n.*","")
+    local cursorColor = string.gsub(result, ".*\nURxvt.cursorColor:%s*",""):gsub("%s*\n.*","")
+    if string.match(cursorColor, '%d+') then
+      cursorColor = string.gsub(result,".*\n%*color" .. cursorColor ..":%s*",""):gsub("%s*\n.*","")
+    end
+    if (isRGB(cursorColor)) then
+        theme.border_focus = cursorColor
+    end
+    if (isRGB(bgColor)) then
+        theme.border_normal = bgColor
     end
 end
 --- }}}
@@ -283,8 +287,7 @@ end
 -- Themes define colours, icons, and wallpapers
 beautiful.init(awful.util.getdir("config") .. "/themes/zenburn-mod/theme.lua")
 -- Reset border colors according to current URxvt colorscheme
-setBorderColor(theme,"focus")
-setBorderColor(theme,"normal")
+setBorderColor(theme)
 
 -- This is used later as the default terminal and editor to run.
 terminal = "urxvtc"
@@ -326,7 +329,7 @@ gears.wallpaper.set(pattern)
 tags = {}
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
-    tags[s] = awful.tag({ 1, 2, 3, 4, 5 }, s, layouts[1])
+    tags[s] = awful.tag({ 1, 2, 3, 4, 5 }, s, awful.layout.suit.tile)
 end
 -- }}}
 
@@ -400,8 +403,8 @@ batteryWidget:set_color(theme.bg_focus)
 vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter , 60, "BAT0")
 
 batteryWidgetTooltip = awful.tooltip({
-    objects = { batteryWidget }, 
-    timer_function = 
+    objects = { batteryWidget },
+    timer_function =
         function()
             local pipe = io.popen('echo -n "$(acpi -a -b -i)"')
             local acpiResult = pipe:read("*a")
@@ -425,8 +428,8 @@ wifiWidget:set_color(theme.bg_focus)
 vicious.register(wifiWidget, vicious.widgets.wifi, '${linp}', 15, "wlan0")
 
 wifiWidgetTooltip = awful.tooltip({
-    objects = { wifiWidget }, 
-    timer_function = 
+    objects = { wifiWidget },
+    timer_function =
         function()
             local pipe = io.popen('echo -n "$(connectionStatus.sh)"')
             local value = pipe:read("*a")
@@ -536,7 +539,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control", "Shift" }, "n", awful.client.restore),
 
     -- Prompt
-    awful.key({ modkey,           }, "r",  function () 
+    awful.key({ modkey,           }, "r",  function ()
                                                 local wiboxVisibleBeforeExecution = mywibox[mouse.screen].visible
                                                 mywibox[mouse.screen].visible = true
                                                 awful.prompt.run({prompt="Run:"},
@@ -548,7 +551,7 @@ globalkeys = awful.util.table.join(
                                                     function () mywibox[mouse.screen].visible = wiboxVisibleBeforeExecution end,
                                                     nil,
                                                     nil
-                                                ) 
+                                                )
                                            end),
 
     awful.key({ modkey }, "x",
@@ -748,22 +751,22 @@ client.connect_signal("manage", function (c, startup)
     end
 end)
 
-client.connect_signal("focus", function(c) 
+client.connect_signal("focus", function(c)
                                   c.border_color = beautiful.border_focus
                                   c.border_width = beautiful.border_width
                                   hideBordersIfOnlyOneClientVisible()
                                   hideBordersIfMaximized(c)
                                end)
-client.connect_signal("unfocus", function(c) 
-                                 c.border_color = beautiful.border_normal 
+client.connect_signal("unfocus", function(c)
+                                 c.border_color = beautiful.border_normal
                                  c.border_width = beautiful.border_width
                                end)
-client.connect_signal("property::maximized_horizontal", function(c) 
+client.connect_signal("property::maximized_horizontal", function(c)
                                                            restoreBordersIfNotMaximized(c)
                                                            hideBordersIfMaximized(c)
                                                            hideBordersIfOnlyOneClientVisible()
                                                         end)
-client.connect_signal("property::maximized_vertical", function(c) 
+client.connect_signal("property::maximized_vertical", function(c)
                                                            restoreBordersIfNotMaximized(c)
                                                            hideBordersIfMaximized(c)
                                                            hideBordersIfOnlyOneClientVisible()
@@ -772,8 +775,8 @@ client.connect_signal("property::maximized_vertical", function(c)
 
 -- {{{ Timer
 effectivePowerConsumptionTimer = timer({ timeout = 60 })
-effectivePowerConsumptionTimer:connect_signal("timeout", 
-    function() 
+effectivePowerConsumptionTimer:connect_signal("timeout",
+    function()
         local file = io.open("/sys/class/power_supply/AC/online", "rb")
         local acStatus = file:read()
         file:close()
@@ -791,8 +794,8 @@ effectivePowerConsumptionTimer:connect_signal("timeout",
 effectivePowerConsumptionTimer:start()
 -- }}}
 
--- {{{ Autostart 
-awful.util.spawn_with_shell("thinkpad-dock.sh")
+-- {{{ Autostart
+--awful.util.spawn_with_shell("thinkpad-dock.sh")
 awful.util.spawn_with_shell("skype")
 awful.util.spawn_with_shell("xbacklight -set 80")
 resetTerminalStartDirectory()
