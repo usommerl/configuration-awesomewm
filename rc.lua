@@ -645,7 +645,7 @@ awful.rules.rules = {
     { rule = { properties = { maximized_horizontal, maximized_vertical } },
       properties = { border_width = 0 } },
     { rule = { class = "URxvt" },
-      properties = { tag = tags[1][2], size_hints_honor = false, switchtotag = true } },
+      properties = { size_hints_honor = false } },
     { rule = { class = "Google-chrome" },
       properties = { tag = tags[1][1], switchtotag = true } },
     { rule = { class = "Google-chrome-beta" },
