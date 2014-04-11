@@ -488,7 +488,7 @@ awful.menu.menu_keys.up   = {"k", "Up"}
 
 globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
-    awful.key({ modkey            }, "Pause",  function () awful.util.spawn_with_shell("slimlock") end),
+    awful.key({ modkey            }, "Pause",  function () awful.util.spawn_with_shell("i3lock -c 000000") end),
     awful.key({ modkey            }, "F7",  function () awful.util.spawn_with_shell("sleep 1;xset s activate") end),
     awful.key({},                    "#122",   function () awful.util.spawn_with_shell("amixer --quiet set Master 1%-") end),
     awful.key({ modkey},             "-",      function () awful.util.spawn_with_shell("amixer --quiet set Master 1%-") end),
