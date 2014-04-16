@@ -373,7 +373,7 @@ function batteryWidgetFormatter(widget, data)
         widget:set_color("#FFCC00")
     elseif data[2] >= 0  and data[2] < 15   then
         widget:set_color("#CC0000")
-        if data[2] <= 3 and data[1] == '-' then
+        if data[2] <= 3 and data[1] == "−" then
             local pipe = io.popen('echo -n $(acpi -b | sed "s/Battery 0: //")')
             local acpiResult = pipe:read("*a")
             pipe:close()
@@ -384,7 +384,7 @@ function batteryWidgetFormatter(widget, data)
         end
     end
 
-    if data[1] == '+' then
+    if data[1] == "+" then
         widget:set_border_color("#004000")
     else
         widget:set_border_color(nil)
