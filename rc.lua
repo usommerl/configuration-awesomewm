@@ -683,6 +683,8 @@ awful.rules.rules = {
       properties = { tag = tags[1][4] } },
     { rule = { class = "Skype" },
       properties = { tag = tags[1][5], switchtotag = false } },
+    { rule = { instance = "weechat", class = "URxvt" },
+      properties = { tag = tags[1][5], switchtotag = false } },
     { rule = { instance = "rtorrent", class = "URxvt" },
       properties = { tag = tags[1][5] } },
     { rule = { class = "jd-Main" },
@@ -796,8 +798,8 @@ effectivePowerConsumptionTimer:start()
 -- }}}
 
 -- {{{ Autostart
---awful.util.spawn_with_shell("thinkpad-dock.sh")
 awful.util.spawn_with_shell("skype")
+awful.util.spawn("urxvtc -name weechat -e weechat")
 awful.util.spawn_with_shell("xbacklight -set 80")
 resetTerminalStartDirectory()
 -- }}}
