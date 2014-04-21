@@ -66,6 +66,16 @@ function tableLength(table)
   return count
 end
 
+function all_minimized_clients()
+    local clients = {}
+    for i, c in pairs(client.get(mouse.screen)) do
+        if c.minimized then
+            table.insert(clients,c)
+        end
+    end
+    return clients
+end
+
 function menu_center_coords(numberOfMenuItems)
    local s_geometry = screen[mouse.screen].workarea
    local menu_height = numberOfMenuItems * theme.menu_height +  2 * theme.border_width
@@ -74,28 +84,53 @@ function menu_center_coords(numberOfMenuItems)
    return {["x"] = menu_x, ["y"] = menu_y}
 end
 
-function show_minimized_clients()
+function client_tag_visible(client)
+  for _, t1 in pairs(client:tags()) do
+      for _, t2 in pairs(awful.tag.selectedlist(mouse.screen)) do
+          if t1 == t2 then
+              return true
+          end
+      end
+  end
+  return false
+end
+
+function minimized_clients_selector(clients)
     local menuItems = {}
-    for i, c in pairs(client.get(mouse.screen)) do
-        if c.minimized then
-            table.insert(menuItems,
-                         {c.name,
-                          function()
+    for _, c in pairs(clients) do
+        table.insert(menuItems,
+                     {c.name,
+                      function()
+                          if not client_tag_visible(c) then
                               awful.tag.viewonly(c:tags()[1])
-                              client.focus = c
-                              c:raise()
-                              -- For a short period after client.focus the number
-                              -- of visible clients is 0. Therefore the
-                              -- hideBordersIfOnlyOneClientVisible()
-                              -- method fails in this particular case.
-                              if (#awful.client.visible(mouse.screen) == 0) then
-                                  c.border_width = 0
-                              end
                           end
-                         })
-        end
+                          client.focus = c
+                          c:raise()
+                          -- For a short period after client.focus the number
+                          -- of visible clients is 0. Therefore the
+                          -- hideBordersIfOnlyOneClientVisible()
+                          -- method fails in this particular case.
+                          if (#awful.client.visible(mouse.screen) == 0) then
+                              c.border_width = 0
+                          end
+                      end
+                     })
     end
     awful.menu(menuItems):show({coords = menu_center_coords(tableLength(menuItems) - 1)})
+end
+
+function show_all_minimized_clients()
+    minimized_clients_selector(all_minimized_clients())
+end
+
+function show_minimized_clients_on_tag()
+    local clients = {}
+    for _, c in pairs(all_minimized_clients()) do
+        if client_tag_visible(c) then
+            table.insert(clients,c)
+        end
+    end
+    minimized_clients_selector(clients)
 end
 
 function hideBordersIfOnlyOneClientVisible()
@@ -536,8 +571,9 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "space", function () awful.layout.inc(layouts,  1) end),
     awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(layouts, -1) end),
 
-    awful.key({ modkey, "Control" }, "n", show_minimized_clients),
-    awful.key({ modkey, "Control", "Shift" }, "n", awful.client.restore),
+    awful.key({ modkey, "Control" }, "n", show_minimized_clients_on_tag),
+    awful.key({ modkey, "Control", "Mod1" }, "n", show_all_minimized_clients),
+    --awful.key({ modkey, "Control", "Shift" }, "n", awful.client.restore),
 
     -- Prompt
     awful.key({ modkey,           }, "r",  function ()
