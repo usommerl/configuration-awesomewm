@@ -705,8 +705,6 @@ awful.rules.rules = {
       properties = { tag = tags[1][4] } },
     { rule = { instance = "alsamixer", class = "URxvt" },
       properties = { tag = tags[1][4] } },
-    { rule = { class = "Easytag" },
-      properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { class = "Vlc" },
       properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { instance = "nvlc", class = "URxvt" },
