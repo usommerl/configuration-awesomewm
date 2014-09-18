@@ -833,7 +833,7 @@ effectivePowerConsumptionTimer:start()
 
 -- {{{ Autostart
 awful.util.spawn_with_shell("skype")
-awful.util.spawn("urxvtc -name weechat -e weechat")
+--awful.util.spawn("urxvtc -name weechat -e weechat")
 awful.util.spawn_with_shell("xbacklight -set 80")
 resetTerminalStartDirectory()
 -- }}}
