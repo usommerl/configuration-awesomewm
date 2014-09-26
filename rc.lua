@@ -361,10 +361,19 @@ gears.wallpaper.set(pattern)
 
 -- {{{ Tags
 -- Define a tag table which hold all screen tags.
+
+function tagNames(numberOfTags)
+   result = {}
+   for i=1, numberOfTags do
+     result[i] = i
+   end
+   return result
+end
+
 tags = {}
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
-    tags[s] = awful.tag({ 1, 2, 3, 4, 5 }, s, awful.layout.suit.tile)
+    tags[s] = awful.tag(tagNames(5), s, awful.layout.suit.tile)
 end
 -- }}}
 
@@ -557,6 +566,27 @@ globalkeys = awful.util.table.join(
             end
         end),
 
+    -- Dynamic tags 
+    awful.key({ modkey, "Control" }, "a",
+        function ()
+            props = {selected = true}
+            index = #tags[mouse.screen]+1
+            t = awful.tag.add(index, props)
+            tags[mouse.screen][index]=t
+            awful.tag.viewonly(t)
+        end),
+    awful.key({ modkey, "Control" }, "d",
+        function ()
+            t = awful.tag.selected(mouse.screen)
+            if awful.tag.delete(t) then
+                -- This will only work if tag names are numbers!
+                table.remove(tags[mouse.screen], t.name)
+                for i = t.name, #tags[mouse.screen] do
+                    tags[mouse.screen][i].name = i
+                end
+            end
+        end),
+
     -- Standard program
     awful.key({ modkey,           }, "Return", startTerminal),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
@@ -621,16 +651,10 @@ clientkeys = awful.util.table.join(
         end)
 )
 
--- Compute the maximum number of digit we need, limited to 9
-keynumber = 0
-for s = 1, screen.count() do
-   keynumber = math.min(9, math.max(#tags[s], keynumber))
-end
-
 -- Bind all key numbers to tags.
 -- Be careful: we use keycodes to make it works on any keyboard layout.
 -- This should map on the top row of your keyboard, usually 1 to 9.
-for i = 1, keynumber do
+for i = 1, 9 do
     globalkeys = awful.util.table.join(globalkeys,
         awful.key({ modkey }, "#" .. i + 9,
                   function ()
