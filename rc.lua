@@ -739,8 +739,6 @@ awful.rules.rules = {
       properties = { tag = tags[1][5], switchtotag = false } },
     { rule = { instance = "weechat", class = "URxvt" },
       properties = { tag = tags[1][5], switchtotag = false } },
-    { rule = { instance = "rtorrent", class = "URxvt" },
-      properties = { tag = tags[1][5] } },
 }
 -- }}}
 
