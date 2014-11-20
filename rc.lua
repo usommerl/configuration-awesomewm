@@ -540,6 +540,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey},             "+",      function () awful.util.spawn_with_shell("amixer --quiet set Master 1%+") end),
     awful.key({ modkey            }, "p",      function () awful.util.spawn_with_shell("ncmpcpp toggle") end),
     awful.key({ modkey            }, "b",      function () mywibox[mouse.screen].visible = not mywibox[mouse.screen].visible end),
+    awful.key({ modkey, "Shift", "Control" }, "s", function () awful.util.spawn_with_shell("poweroff") end),
 
     awful.key({ modkey,           }, "j",
         function ()
