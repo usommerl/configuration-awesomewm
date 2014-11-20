@@ -570,7 +570,7 @@ globalkeys = awful.util.table.join(
     -- Dynamic tags 
     awful.key({ modkey, "Control" }, "a",
         function ()
-            props = {selected = true}
+            props = {selected = true, layout = awful.layout.suit.tile}
             index = #tags[mouse.screen]+1
             t = awful.tag.add(index, props)
             tags[mouse.screen][index]=t
