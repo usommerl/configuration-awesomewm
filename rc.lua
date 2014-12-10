@@ -157,7 +157,7 @@ end
 function run_prompt_execute_callback(command)
    if command:sub(1,1) == ":" then
       name,_  = command:sub(2):gsub("%s.*","")
-      command = terminal .. ' -name ' .. name .. ' -e ' .. command:sub(2)
+      command = 'urxvtc -name ' .. name .. ' -e zsh -i -c "' .. command:sub(2) .. '"'
    end
    awful.util.spawn(command)
 end
@@ -169,7 +169,7 @@ function run_prompt_completion_callback(command, cur_pos, ncomp, shell)
       command = command:sub(2)
       cur_pos = cur_pos - 1
    end
-   command, cur_pos =  awful.completion.shell(command, cur_pos,ncomp,shell)
+   command, cur_pos =  awful.completion.shell(command, cur_pos, ncomp, shell)
    if term == true then
       command = ':' .. command
       cur_pos = cur_pos + 1
