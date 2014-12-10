@@ -154,7 +154,7 @@ function restoreBordersIfNotMaximized(client)
     end
 end
 
-function check_for_terminal(command)
+function run_prompt_execute_callback(command)
    if command:sub(1,1) == ":" then
       name,_  = command:sub(2):gsub("%s.*","")
       command = terminal .. ' -name ' .. name .. ' -e ' .. command:sub(2)
@@ -162,7 +162,7 @@ function check_for_terminal(command)
    awful.util.spawn(command)
 end
 
-function clean_for_completion(command, cur_pos, ncomp, shell)
+function run_prompt_completion_callback(command, cur_pos, ncomp, shell)
    local term = false
    if command:sub(1,1) == ":" then
       term = true
@@ -607,27 +607,36 @@ globalkeys = awful.util.table.join(
     --awful.key({ modkey, "Control", "Shift" }, "n", awful.client.restore),
 
     -- Prompt
-    awful.key({ modkey,           }, "r",  function ()
-                                                local wiboxVisibleBeforeExecution = mywibox[mouse.screen].visible
-                                                mywibox[mouse.screen].visible = true
-                                                awful.prompt.run({prompt="Run:"},
-                                                    mypromptbox[mouse.screen].widget,
-                                                    check_for_terminal,
-                                                    clean_for_completion,
-                                                    awful.util.getdir("cache") .. "/history",
-                                                    500,
-                                                    function () mywibox[mouse.screen].visible = wiboxVisibleBeforeExecution end,
-                                                    nil,
-                                                    nil
-                                                )
-                                           end),
+    awful.key({ modkey,           }, "r",
+              function ()
+                  local wiboxVisibleBeforeExecution = mywibox[mouse.screen].visible
+                  mywibox[mouse.screen].visible = true
+                  awful.prompt.run({prompt="Run:"},
+                      mypromptbox[mouse.screen].widget,
+                      run_prompt_execute_callback,
+                      run_prompt_completion_callback,
+                      awful.util.getdir("cache") .. "/history",
+                      500,
+                      function () mywibox[mouse.screen].visible = wiboxVisibleBeforeExecution end,
+                      nil,
+                      nil
+                  )
+              end),
 
     awful.key({ modkey }, "x",
               function ()
-                  awful.prompt.run({ prompt = "Run Lua code: " },
-                  mypromptbox[mouse.screen].widget,
-                  awful.util.eval, nil,
-                  awful.util.getdir("cache") .. "/history_eval")
+                  local wiboxVisibleBeforeExecution = mywibox[mouse.screen].visible
+                  mywibox[mouse.screen].visible = true
+                  awful.prompt.run({ prompt = "Run Lua code:" },
+                      mypromptbox[mouse.screen].widget,
+                      awful.util.eval,
+                      nil,
+                      awful.util.getdir("cache") .. "/history_eval",
+                      500,
+                      function () mywibox[mouse.screen].visible = wiboxVisibleBeforeExecution end,
+                      nil,
+                      nil
+                  )
               end)
 )
 
