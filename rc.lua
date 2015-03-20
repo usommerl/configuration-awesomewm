@@ -741,6 +741,8 @@ awful.rules.rules = {
       properties = { tag = tags[1][4] } },
     { rule = { class = "Vlc" },
       properties = { tag = tags[1][4], switchtotag = true } },
+    { rule = { class = "mpv" },
+      properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { class = "mplayer2" },
       properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { class = "MPlayer" },
