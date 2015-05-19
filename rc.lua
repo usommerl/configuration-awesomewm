@@ -400,88 +400,6 @@ mytaglist.buttons = awful.util.table.join(
                     awful.button({ }, 5, function(t) awful.tag.viewprev(awful.tag.getscreen(t)) end)
                     )
 
--- Spacer
-local spacer    = awful.widget.progressbar()
-spacer:set_width(2)
-spacer:set_background_color(theme.bg_normal)
-spacer:set_border_color(nil)
-
-local widthProgressBar = 7
-local ticksSize = 1
-
--- Battery widget
-function batteryWidgetFormatter(widget, data)
-    if data[2] >= 40 and data[2] <= 100 then
-        widget:set_color(theme.bg_focus)
-    elseif data[2] >= 15 and data[2] < 40   then
-        widget:set_color("#FFCC00")
-    elseif data[2] >= 0  and data[2] < 15   then
-        widget:set_color("#CC0000")
-        if data[2] <= 3 and data[1] == "−" then
-            local pipe = io.popen('echo -n $(acpi -b | sed "s/Battery 0: //")')
-            local acpiResult = pipe:read("*a")
-            pipe:close()
-            naughty.notify({ preset = naughty.config.presets.critical,
-            title = "Battery critical",
-            timeout = 10,
-            text =  acpiResult })
-        end
-    end
-
-    if data[1] == "+" then
-        widget:set_border_color("#004000")
-    else
-        widget:set_border_color(nil)
-    end
-    return data[2]
-end
-
-
-local batteryWidget = awful.widget.progressbar()
-batteryWidget:set_width(widthProgressBar)
-batteryWidget:set_ticks(true)
-batteryWidget:set_ticks_size(ticksSize)
-batteryWidget:set_vertical(true)
-batteryWidget:set_background_color(theme.bg_normal)
-batteryWidget:set_color(theme.bg_focus)
-vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter , 60, "BAT0")
-
-batteryWidgetTooltip = awful.tooltip({
-    objects = { batteryWidget },
-    timer_function =
-        function()
-            local pipe = io.popen('echo -n "$(acpi -a -b -i)"')
-            local acpiResult = pipe:read("*a")
-            pipe:close()
-            if string.find(acpiResult,"Adapter 0: off") ~= nil then
-                return "Battery 0: effective power consumption " .. math.round(effectivePower(), 1) .. " W\n" .. acpiResult
-            end
-            return acpiResult
-        end,
-})
-
--- Wifi widget
-local wifiWidget = awful.widget.progressbar()
-wifiWidget:set_width(widthProgressBar)
-wifiWidget:set_ticks(true)
-wifiWidget:set_ticks_size(ticksSize)
-wifiWidget:set_vertical(true)
-wifiWidget:set_background_color(theme.bg_normal)
-wifiWidget:set_border_color(nil)
-wifiWidget:set_color(theme.bg_focus)
-vicious.register(wifiWidget, vicious.widgets.wifi, '${linp}', 15, "wlan0")
-
-wifiWidgetTooltip = awful.tooltip({
-    objects = { wifiWidget },
-    timer_function =
-        function()
-            local pipe = io.popen('echo -n "$(connectionStatus.sh)"')
-            local value = pipe:read("*a")
-            pipe:close()
-            return value
-        end,
-})
-
 for s = 1, screen.count() do
     -- Create a promptbox for each screen
     mypromptbox[s] = awful.widget.prompt()
@@ -493,10 +411,6 @@ for s = 1, screen.count() do
 
     -- Widgets that are aligned to the left
     local left_layout = wibox.layout.fixed.horizontal()
-    left_layout:add(batteryWidget)
-    left_layout:add(spacer)
-    left_layout:add(wifiWidget)
-    left_layout:add(spacer)
     left_layout:add(mytaglist[s])
     left_layout:add(mypromptbox[s])
 
