@@ -752,27 +752,6 @@ client.connect_signal("property::maximized_vertical", function(c)
                                                       end)
 -- }}}
 
--- {{{ Timer
-effectivePowerConsumptionTimer = timer({ timeout = 60 })
-effectivePowerConsumptionTimer:connect_signal("timeout",
-    function()
-        local file = io.open("/sys/class/power_supply/AC/online", "rb")
-        local acStatus = file:read()
-        file:close()
-        if acStatus == '0' then
-            local effectivePower = effectivePower()
-            logEffectivePowerConsumption(effectivePower)
-            if effectivePower > 25 then
-                naughty.notify({ preset = naughty.config.presets.critical,
-                title = "effective power consumption critical",
-                timeout = 3,
-                text = math.round(effectivePower,1) .. " W" })
-            end
-        end
-    end)
-effectivePowerConsumptionTimer:start()
--- }}}
-
 -- {{{ Autostart
 awful.util.spawn_with_shell("xbacklight -set 80")
 resetTerminalStartDirectory()
