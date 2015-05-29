@@ -753,6 +753,6 @@ client.connect_signal("property::maximized_vertical", function(c)
 -- }}}
 
 -- {{{ Autostart
-awful.util.spawn_with_shell("xbacklight -set 80")
+run_once("urxvtd -q -f -o")
 resetTerminalStartDirectory()
 -- }}}
