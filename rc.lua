@@ -50,12 +50,6 @@ end
 
 -- resets the terminal working directory at awesome startup
 function resetTerminalStartDirectory()
-
-function logEffectivePowerConsumption(effectivePower)
-   local file = io.open("/var/log/effective_power_consumption.log", "a")
-   local date = os.date("%Y-%m-%dT%H:%M:%S%z", os.time())
-   file:write(date .. "   " .. effectivePower .. "\n")
-   file:close()
     awful.util.spawn_with_shell("echo $HOME > $HOME/.urxvt/start_directory")
 end
 
