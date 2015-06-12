@@ -658,6 +658,12 @@ awful.rules.rules = {
       properties = { tag = tags[1][5], switchtotag = false } },
     { rule = { instance = "weechat", class = "URxvt" },
       properties = { tag = tags[1][5], switchtotag = false } },
+    { rule = { name = "GUI TEST" },
+      properties = { focus = false },
+      callback = function (c)
+                 c:raise()
+                 end
+    }
 }
 -- }}}
 
