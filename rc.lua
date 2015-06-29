@@ -366,7 +366,7 @@ end
 tags = {}
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
-    tags[s] = awful.tag(tagNames(5), s, awful.layout.suit.tile)
+    tags[s] = awful.tag(tagNames(7), s, awful.layout.suit.tile)
 end
 -- }}}
 
