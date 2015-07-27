@@ -642,7 +642,7 @@ awful.rules.rules = {
     { rule = { class = "MPlayer" },
       properties = { tag = tags[1][4], switchtotag = true } },
     { rule = { instance = "weechat", class = "URxvt" },
-      properties = { tag = tags[1][5], switchtotag = false } },
+      properties = { tag = tags[1][7], switchtotag = false } },
     { rule = { name = "GUI TEST" },
       properties = { focus = false },
       callback = function (c)
@@ -738,5 +738,6 @@ client.connect_signal("property::maximized_vertical", function(c)
 
 -- {{{ Autostart
 run_once("urxvtd -q -f -o")
+awful.util.spawn("urxvtc -name weechat -e weechat")
 resetTerminalStartDirectory()
 -- }}}
