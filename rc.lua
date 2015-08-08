@@ -861,5 +861,6 @@ effectivePowerConsumptionTimer:start()
 
 -- {{{ Autostart
 awful.util.spawn_with_shell("xbacklight -set 80")
+awful.util.spawn("urxvtc -name weechat -e weechat")
 resetTerminalStartDirectory()
 -- }}}
