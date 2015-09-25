@@ -716,6 +716,8 @@ awful.rules.rules = {
       properties = { border_width = 0 } },
     { rule = { class = "URxvt" },
       properties = { size_hints_honor = false } },
+    { rule = { class = "rdesktop" },
+      properties = { size_hints_honor = false, floating = false } },
     { rule = { class = "Soffice" },
       properties = { floating = false } },
     { rule = { instance = "ncmpcpp", class = "URxvt" },
