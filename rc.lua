@@ -623,6 +623,8 @@ awful.rules.rules = {
       properties = { border_width = 0 } },
     { rule = { class = "URxvt" },
       properties = { size_hints_honor = false } },
+    { rule = { class = "rdesktop" },
+      properties = { size_hints_honor = false, floating = false } },
     { rule = { instance = "weechat", class = "URxvt" },
       properties = { tag = tags[1][7], switchtotag = false } },
     { rule = { name = "GUI TEST" },
