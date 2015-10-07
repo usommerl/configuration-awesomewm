@@ -724,6 +724,5 @@ client.connect_signal("property::maximized_vertical", function(c)
 
 -- {{{ Autostart
 run_once("urxvtd -q -f -o")
-awful.util.spawn("urxvtc -name weechat -e weechat")
 resetTerminalStartDirectory()
 -- }}}
