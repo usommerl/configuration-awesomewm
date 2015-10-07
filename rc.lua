@@ -623,6 +623,8 @@ awful.rules.rules = {
       properties = { border_width = 0 } },
     { rule = { class = "URxvt" },
       properties = { size_hints_honor = false } },
+    { rule = { class = "nxclient" },
+      properties = { floating = false } },
     { rule = { class = "rdesktop" },
       properties = { size_hints_honor = false, floating = false } },
     { rule = { instance = "weechat", class = "URxvt" },
