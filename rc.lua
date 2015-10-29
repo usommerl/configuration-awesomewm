@@ -111,7 +111,7 @@ function minimized_clients_selector(clients)
                           -- hideBordersIfOnlyOneClientVisible()
                           -- method fails in this particular case.
                           if (#awful.client.visible(mouse.screen) == 0) then
-                              c.border_width = 0
+                              c.border_color = theme.border_normal
                           end
                       end
                      })
@@ -137,20 +137,15 @@ function hideBordersIfOnlyOneClientVisible()
   local visibleClients = awful.client.visible(mouse.screen)
   if #visibleClients == 1 then
       local client = visibleClients[1]
-      client.border_width = 0
+      client.border_color = theme.border_normal
   end
 end
 
 function hideBordersIfMaximized(client)
     if client.maximized_vertical and client.maximized_horizontal then
-        client.border_width = 0
-    end
-end
-
-
-function restoreBordersIfNotMaximized(client)
-    if not client.maximized_vertical and not client.maximized_horizontal then
-        client.border_width = beautiful.border_width
+        client.border_color = theme.border_normal
+    else
+        client.border_color = theme.border_focus
     end
 end
 
@@ -800,22 +795,17 @@ client.connect_signal("manage", function (c, startup)
 end)
 
 client.connect_signal("focus", function(c)
-                                  c.border_color = beautiful.border_focus
-                                  c.border_width = beautiful.border_width
-                                  hideBordersIfOnlyOneClientVisible()
                                   hideBordersIfMaximized(c)
+                                  hideBordersIfOnlyOneClientVisible()
                                end)
 client.connect_signal("unfocus", function(c)
                                  c.border_color = beautiful.border_normal
-                                 c.border_width = beautiful.border_width
                                end)
 client.connect_signal("property::maximized_horizontal", function(c)
-                                                           restoreBordersIfNotMaximized(c)
                                                            hideBordersIfMaximized(c)
                                                            hideBordersIfOnlyOneClientVisible()
                                                         end)
 client.connect_signal("property::maximized_vertical", function(c)
-                                                           restoreBordersIfNotMaximized(c)
                                                            hideBordersIfMaximized(c)
                                                            hideBordersIfOnlyOneClientVisible()
                                                       end)
