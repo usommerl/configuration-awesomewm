@@ -104,7 +104,7 @@ function minimized_clients_selector(clients)
                           -- hideBordersIfOnlyOneClientVisible()
                           -- method fails in this particular case.
                           if (#awful.client.visible(mouse.screen) == 0) then
-                              c.border_color = theme.border_normal
+                              hideBordersDelayed(c)
                           end
                       end
                      })
@@ -130,16 +130,26 @@ function hideBordersIfOnlyOneClientVisible()
   local visibleClients = awful.client.visible(mouse.screen)
   if #visibleClients == 1 then
       local client = visibleClients[1]
-      client.border_color = theme.border_normal
+      hideBordersDelayed(client)
   end
 end
 
 function hideBordersIfMaximized(client)
     if client.maximized_vertical and client.maximized_horizontal then
-        client.border_color = theme.border_normal
+        hideBordersDelayed(client)
     else
         client.border_color = theme.border_focus
     end
+end
+
+function hideBordersDelayed(client)
+  local hideTimer = timer({ timeout = 0.5 })
+  hideTimer:connect_signal("timeout",
+    function()
+      client.border_color = theme.border_normal
+      hideTimer:stop()
+    end)
+  hideTimer:start()
 end
 
 function run_prompt_execute_callback(command)
