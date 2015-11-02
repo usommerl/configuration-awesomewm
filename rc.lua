@@ -111,7 +111,7 @@ function minimized_clients_selector(clients)
                           -- hideBordersIfOnlyOneClientVisible()
                           -- method fails in this particular case.
                           if (#awful.client.visible(mouse.screen) == 0) then
-                              hideBordersDelayed(c)
+                              hideBorders(c)
                           end
                       end
                      })
@@ -133,17 +133,22 @@ function show_minimized_clients_on_tag()
     minimized_clients_selector(clients)
 end
 
+function hideBordersIfNecessary(client)
+   hideBordersIfMaximized(client)
+   hideBordersIfOnlyOneClientVisible()
+end
+
 function hideBordersIfOnlyOneClientVisible()
   local visibleClients = awful.client.visible(mouse.screen)
   if #visibleClients == 1 then
       local client = visibleClients[1]
-      hideBordersDelayed(client)
+      hideBorders(client)
   end
 end
 
 function hideBordersIfMaximized(client)
     if client.maximized_vertical and client.maximized_horizontal then
-        hideBordersDelayed(client)
+        hideBorders(client)
     else
         client.border_color = theme.border_focus
     end
@@ -157,6 +162,14 @@ function hideBordersDelayed(client)
       hideTimer:stop()
     end)
   hideTimer:start()
+end
+
+function hideBorders(client)
+  if lastScreen == client.screen then
+      client.border_color = theme.border_normal
+  else
+      hideBordersDelayed(client)
+  end
 end
 
 function run_prompt_execute_callback(command)
@@ -340,6 +353,9 @@ editor_cmd = terminal .. " -e " .. editor
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
 modkey = "Mod4"
+
+-- Variable to recognize when we are switching screens
+lastScreen = 1
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 local layouts =
@@ -805,19 +821,17 @@ client.connect_signal("manage", function (c, startup)
 end)
 
 client.connect_signal("focus", function(c)
-                                  hideBordersIfMaximized(c)
-                                  hideBordersIfOnlyOneClientVisible()
+                                  hideBordersIfNecessary(c)
                                end)
 client.connect_signal("unfocus", function(c)
+                                 lastScreen = c.screen
                                  c.border_color = beautiful.border_normal
                                end)
 client.connect_signal("property::maximized_horizontal", function(c)
-                                                           hideBordersIfMaximized(c)
-                                                           hideBordersIfOnlyOneClientVisible()
+                                                          hideBordersIfNecessary(c)
                                                         end)
 client.connect_signal("property::maximized_vertical", function(c)
-                                                           hideBordersIfMaximized(c)
-                                                           hideBordersIfOnlyOneClientVisible()
+                                                        hideBordersIfNecessary(c)
                                                       end)
 -- }}}
 
