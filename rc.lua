@@ -738,5 +738,6 @@ client.connect_signal("property::maximized_vertical", function(c)
 
 -- {{{ Autostart
 run_once("urxvtd -q -f -o")
+awful.util.spawn_with_shell("xrandr --output VBOX1 --right-of VBOX0")
 resetTerminalStartDirectory()
 -- }}}
