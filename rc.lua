@@ -503,6 +503,38 @@ wifiWidgetTooltip = awful.tooltip({
         end,
 })
 
+-- Thermal widget
+function thermalWidgetFormatter(widget, data)
+    local temperature = data[1]
+    if temperature >= 60 and temperature < 80 then
+      thermalWidget:set_background_color("#FFCC00")
+    elseif temperature >= 80 then
+      thermalWidget:set_background_color("#CCCC00")
+    else
+      thermalWidget:set_background_color(theme.bg_normal)
+    end
+    return 0
+end
+
+thermalWidget = awful.widget.progressbar()
+thermalWidget:set_width(widthProgressBar)
+thermalWidget:set_vertical(true)
+thermalWidget:set_background_color(theme.bg_normal)
+thermalWidget:set_border_color(nil)
+thermalWidget:set_color(theme.bg_focus)
+vicious.register(thermalWidget, vicious.widgets.thermal, thermalWidgetFormatter, 60, "thermal_zone0")
+
+thermalWidgetTooltip = awful.tooltip({
+    objects = { thermalWidget },
+    timer_function =
+        function()
+            local pipe = io.popen('echo -n "$(sensors)"')
+            local value = pipe:read("*a")
+            pipe:close()
+            return value
+        end,
+})
+
 for s = 1, screen.count() do
     -- Create a promptbox for each screen
     mypromptbox[s] = awful.widget.prompt()
@@ -524,6 +556,8 @@ for s = 1, screen.count() do
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
     -- if s == 1 then right_layout:add(wibox.widget.systray()) end
+    right_layout:add(thermalWidget)
+    right_layout:add(spacer)
     right_layout:add(mytextclock)
 
     -- Now bring it all together (with the tasklist in the middle)
