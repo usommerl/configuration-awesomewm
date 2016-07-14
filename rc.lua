@@ -168,7 +168,7 @@ end
 function run_prompt_execute_callback(command)
    if command:sub(1,1) == ":" then
       name,_  = command:sub(2):gsub("%s.*","")
-      command = 'urxvtc -name ' .. name .. ' -e bash -i -c "' .. command:sub(2) .. '"'
+      command = 'urxvt -name ' .. name .. ' -e bash -i -c "' .. command:sub(2) .. '"'
    end
    awful.util.spawn(command)
 end
@@ -336,7 +336,7 @@ beautiful.init(awful.util.getdir("config") .. "/themes/zenburn-mod/theme.lua")
 setBorderColor(theme)
 
 -- This is used later as the default terminal and editor to run.
-terminal = "urxvtc"
+terminal = "urxvt"
 editor = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -737,7 +737,6 @@ client.connect_signal("property::maximized_vertical", function(c)
 -- }}}
 
 -- {{{ Autostart
-run_once("urxvtd -q -f -o")
 awful.util.spawn_with_shell("xrandr --output VBOX1 --right-of VBOX0")
 resetTerminalStartDirectory()
 -- }}}
