@@ -175,7 +175,7 @@ end
 function run_prompt_execute_callback(command)
    if command:sub(1,1) == ":" then
       name,_  = command:sub(2):gsub("%s.*","")
-      command = 'urxvtc -name ' .. name .. ' -e zsh -i -c "' .. command:sub(2) .. '"'
+      command = 'urxvt -name ' .. name .. ' -e zsh -i -c "' .. command:sub(2) .. '"'
    end
    awful.util.spawn(command)
 end
@@ -343,7 +343,7 @@ beautiful.init(awful.util.getdir("config") .. "/themes/zenburn-mod/theme.lua")
 setBorderColor(theme)
 
 -- This is used later as the default terminal and editor to run.
-terminal = "urxvtc"
+terminal = "urxvt"
 editor = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -893,6 +893,5 @@ effectivePowerConsumptionTimer:start()
 
 -- {{{ Autostart
 awful.util.spawn_with_shell("xbacklight -set 80")
---awful.util.spawn("urxvtc -name weechat -e weechat")
 resetTerminalStartDirectory()
 -- }}}
