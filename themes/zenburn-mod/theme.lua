@@ -2,7 +2,7 @@ local awful = require("awful")
 
 theme = dofile("/usr/share/awesome/themes/zenburn/theme.lua")
 
-theme.font      = "Ubuntu Mono 10"
+theme.font      = "DejaVu Sans Mono 8"
 
 theme.fg_normal = "#CCCCCC"
 theme.fg_focus  = "#EEEEEE"
