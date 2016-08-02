@@ -666,7 +666,7 @@ globalkeys = awful.util.table.join(
               function ()
                   local wiboxVisibleBeforeExecution = mywibox[mouse.screen].visible
                   mywibox[mouse.screen].visible = true
-                  awful.prompt.run({prompt="Run:"},
+                  awful.prompt.run({prompt="┃"},
                       mypromptbox[mouse.screen].widget,
                       run_prompt_execute_callback,
                       run_prompt_completion_callback,
