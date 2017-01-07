@@ -507,17 +507,19 @@ wifiWidgetTooltip = awful.tooltip({
 function thermalWidgetFormatter(widget, data)
     local temperature = data[1]
     if temperature >= 60 and temperature < 80 then
-      thermalWidget:set_background_color("#FFCC00")
+      thermalWidget:set_color("#FFCC00")
     elseif temperature >= 80 then
-      thermalWidget:set_background_color("#CCCC00")
+      thermalWidget:set_color("#CCCC00")
     else
-      thermalWidget:set_background_color(theme.bg_normal)
+      thermalWidget:set_color(theme.bg_normal)
     end
-    return 0
+    return 100
 end
 
 thermalWidget = awful.widget.progressbar()
 thermalWidget:set_width(widthProgressBar)
+thermalWidget:set_ticks(true)
+thermalWidget:set_ticks_size(ticksSize)
 thermalWidget:set_vertical(true)
 thermalWidget:set_background_color(theme.bg_normal)
 thermalWidget:set_border_color(nil)
