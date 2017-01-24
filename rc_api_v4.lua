@@ -11,6 +11,48 @@ local naughty = require("naughty")
 local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
 
+
+-- {{{ Custom functions
+function hideBordersIfNecessary(client)
+   hideBordersIfMaximized(client)
+   hideBordersIfOnlyOneClientVisible()
+end
+
+function hideBordersIfOnlyOneClientVisible()
+  local visibleClients = awful.client.visible(mouse.screen)
+  if #visibleClients == 1 then
+      local client = visibleClients[1]
+      hideBorders(client)
+  end
+end
+
+function hideBordersIfMaximized(client)
+    if client.maximized_vertical and client.maximized_horizontal then
+        hideBorders(client)
+    else
+        client.border_color = theme.border_focus
+    end
+end
+
+function hideBordersDelayed(client)
+  local hideTimer = timer({ timeout = 0.5 })
+  hideTimer:connect_signal("timeout",
+    function()
+      client.border_color = theme.border_normal
+      hideTimer:stop()
+    end)
+  hideTimer:start()
+end
+
+function hideBorders(client)
+  if lastScreen == client.screen then
+      client.border_color = theme.border_normal
+  else
+      hideBordersDelayed(client)
+  end
+end
+-- }}}
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -51,6 +93,9 @@ editor_cmd = terminal .. " -e " .. editor
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
 modkey = "Mod4"
+
+-- Variable to recognize when we are switching screens
+lastScreen = 1
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
@@ -507,4 +552,18 @@ end)
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+
+client.connect_signal("focus", function(c)
+                                  hideBordersIfNecessary(c)
+                               end)
+client.connect_signal("unfocus", function(c)
+                                 lastScreen = c.screen
+                                 c.border_color = beautiful.border_normal
+                               end)
+client.connect_signal("property::maximized_horizontal", function(c)
+                                                          hideBordersIfNecessary(c)
+                                                        end)
+client.connect_signal("property::maximized_vertical", function(c)
+                                                        hideBordersIfNecessary(c)
+                                                      end)
 -- }}}
