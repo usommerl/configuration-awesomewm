@@ -144,15 +144,9 @@ local tasklist_buttons = awful.util.table.join(
                                           end))
 
 local function set_wallpaper(s)
-    -- Wallpaper
-    if beautiful.wallpaper then
-        local wallpaper = beautiful.wallpaper
-        -- If wallpaper is a function, call it with the screen
-        if type(wallpaper) == "function" then
-            wallpaper = wallpaper(s)
-        end
-        gears.wallpaper.maximized(wallpaper, s, true)
-    end
+    local pattern = gears.color.create_linear_pattern(
+      "0,0:0,1080:0.1,#000000:1.0,#505050")
+    gears.wallpaper.set(pattern)
 end
 
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
