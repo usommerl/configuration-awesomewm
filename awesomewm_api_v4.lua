@@ -51,6 +51,79 @@ function hideBorders(client)
       hideBordersDelayed(client)
   end
 end
+
+function menu_center_coords(numberOfMenuItems)
+   local s_geometry = screen[mouse.screen].workarea
+   local menu_height = numberOfMenuItems * theme.menu_height +  2 * theme.border_width
+   local menu_x = (s_geometry.width - theme.menu_width) / 2 + s_geometry.x
+   local menu_y = (s_geometry.height - menu_height ) / 2 + s_geometry.y - 100
+   return {["x"] = menu_x, ["y"] = menu_y}
+end
+
+function minimized_clients_selector(clients)
+    local menuItems = {}
+    for _, c in pairs(clients) do
+        table.insert(menuItems,
+                     {c.name,
+                      function()
+                          if not client_tag_visible(c) then
+                              awful.tag.viewonly(c:tags()[1])
+                          end
+                          client.focus = c
+                          c:raise()
+                          -- For a short period after client.focus the number
+                          -- of visible clients is 0. Therefore the
+                          -- hideBordersIfOnlyOneClientVisible()
+                          -- method fails in this particular case.
+                          if (#awful.client.visible(mouse.screen) == 0) then
+                              hideBorders(c)
+                          end
+                      end
+                     })
+    end
+    awful.menu(menuItems):show({coords = menu_center_coords(table_length(menuItems) - 1)})
+end
+
+function all_minimized_clients()
+    local clients = {}
+    for i, c in pairs(client.get(mouse.screen)) do
+        if c.minimized then
+            table.insert(clients,c)
+        end
+    end
+    return clients
+end
+
+function client_tag_visible(client)
+  for _, t1 in pairs(client:tags()) do
+      for _, t2 in pairs(awful.tag.selectedlist(mouse.screen)) do
+          if t1 == t2 then
+              return true
+          end
+      end
+  end
+  return false
+end
+
+function show_all_minimized_clients()
+    minimized_clients_selector(all_minimized_clients())
+end
+
+function show_minimized_clients_on_tag()
+    local clients = {}
+    for _, c in pairs(all_minimized_clients()) do
+        if client_tag_visible(c) then
+            table.insert(clients,c)
+        end
+    end
+    minimized_clients_selector(clients)
+end
+
+function table_length(table)
+  local count = 0
+  for _ in pairs(table) do count = count + 1 end
+  return count
+end
 -- }}}
 
 -- {{{ Error handling
@@ -306,17 +379,6 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(-1)                end,
               {description = "select previous", group = "layout"}),
 
-    awful.key({ modkey, "Control" }, "n",
-              function ()
-                  local c = awful.client.restore()
-                  -- Focus restored client
-                  if c then
-                      client.focus = c
-                      c:raise()
-                  end
-              end,
-              {description = "restore minimized", group = "client"}),
-
     -- Prompt
     awful.key({ modkey },            "r",     function () awful.screen.focused().mypromptbox:run() end,
               {description = "run prompt", group = "launcher"}),
@@ -344,6 +406,8 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey                     }, "F7",     function () awful.spawn.with_shell("sleep 1; xset s activate") end),
     awful.key({ modkey                     }, "Pause",  function () awful.spawn.with_shell("i3lock -c 000000") end),
     awful.key({ modkey                     }, "p",      function () awful.spawn.with_shell("ncmpcpp toggle") end),
+    awful.key({ modkey, "Control"          }, "n",      show_minimized_clients_on_tag),
+    awful.key({ modkey, "Control", "Mod1"  }, "n",      show_all_minimized_clients),
     awful.key({ modkey, "Shift", "Control" }, "s",      function () awful.spawn.with_shell("poweroff") end)
 
 )
