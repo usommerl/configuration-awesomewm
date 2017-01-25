@@ -412,9 +412,6 @@ globalkeys = awful.util.table.join(
                   }
               end,
               {description = "lua execute prompt", group = "awesome"}),
-    -- Menubar
-    awful.key({ modkey }, "p", function() menubar.show() end,
-              {description = "show the menubar", group = "launcher"}),
 
     -- Custom keybindings
     awful.key({                            }, "#122",   function () awful.spawn.with_shell("amixer --quiet set Master 1%-") end),
