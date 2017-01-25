@@ -341,6 +341,7 @@ globalkeys = awful.util.table.join(
     awful.key({                            }, "#123",   function () awful.spawn.with_shell("amixer --quiet set Master 1%+") end),
     awful.key({ modkey                     }, "+",      function () awful.spawn.with_shell("amixer --quiet set Master 1%+") end),
     awful.key({ modkey                     }, "b",      function () mouse.screen.mywibox.visible = not mouse.screen.mywibox.visible end),
+    awful.key({ modkey                     }, "F7",     function () awful.spawn.with_shell("sleep 1; xset s activate") end),
     awful.key({ modkey, "Shift", "Control" }, "s",      function () awful.spawn.with_shell("poweroff") end)
 
 )
