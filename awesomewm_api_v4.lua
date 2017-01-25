@@ -124,6 +124,29 @@ function table_length(table)
   for _ in pairs(table) do count = count + 1 end
   return count
 end
+
+function run_prompt_execute_callback(command)
+   if command:sub(1,1) == ":" then
+      name,_  = command:sub(2):gsub("%s.*","")
+      command = 'urxvt -name ' .. name .. ' -e zsh -i -c "' .. command:sub(2) .. '"'
+   end
+   awful.spawn(command)
+end
+
+function run_prompt_completion_callback(command, cur_pos, ncomp, shell)
+   local term = false
+   if command:sub(1,1) == ":" then
+      term = true
+      command = command:sub(2)
+      cur_pos = cur_pos - 1
+   end
+   command, cur_pos =  awful.completion.shell(command, cur_pos, ncomp, shell)
+   if term == true then
+      command = ':' .. command
+      cur_pos = cur_pos + 1
+   end
+   return command, cur_pos
+end
 -- }}}
 
 -- {{{ Error handling
@@ -379,10 +402,6 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(-1)                end,
               {description = "select previous", group = "layout"}),
 
-    -- Prompt
-    awful.key({ modkey },            "r",     function () awful.screen.focused().mypromptbox:run() end,
-              {description = "run prompt", group = "launcher"}),
-
     awful.key({ modkey }, "x",
               function ()
                   awful.prompt.run {
@@ -408,8 +427,21 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey                     }, "p",      function () awful.spawn.with_shell("ncmpcpp toggle") end),
     awful.key({ modkey, "Control"          }, "n",      show_minimized_clients_on_tag),
     awful.key({ modkey, "Control", "Mod1"  }, "n",      show_all_minimized_clients),
-    awful.key({ modkey, "Shift", "Control" }, "s",      function () awful.spawn.with_shell("poweroff") end)
-
+    awful.key({ modkey, "Shift", "Control" }, "s",      function () awful.spawn.with_shell("poweroff") end),
+    awful.key({ modkey,                    }, "r",      function ()
+                                                            local wiboxVisibleBeforeExecution = mouse.screen.mywibox.visible
+                                                            mouse.screen.mywibox.visible = true
+                                                            awful.prompt.run({prompt="┃"},
+                                                                mouse.screen.mypromptbox.widget,
+                                                                run_prompt_execute_callback,
+                                                                run_prompt_completion_callback,
+                                                                awful.util.getdir("cache") .. "/history",
+                                                                500,
+                                                                function () mouse.screen.mywibox.visible = wiboxVisibleBeforeExecution end,
+                                                                nil,
+                                                                nil
+                                                            )
+                                                        end)
 )
 
 clientkeys = awful.util.table.join(
