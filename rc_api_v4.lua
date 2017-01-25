@@ -336,11 +336,12 @@ globalkeys = awful.util.table.join(
               {description = "show the menubar", group = "launcher"}),
 
     -- Custom keybindings
-    awful.key({                   }, "#122",   function () awful.spawn.with_shell("amixer --quiet set Master 1%-") end),
-    awful.key({ modkey            }, "-",      function () awful.spawn.with_shell("amixer --quiet set Master 1%-") end),
-    awful.key({                   }, "#123",   function () awful.spawn.with_shell("amixer --quiet set Master 1%+") end),
-    awful.key({ modkey            }, "+",      function () awful.spawn.with_shell("amixer --quiet set Master 1%+") end),
-    awful.key({ modkey            }, "b",      function () mouse.screen.mywibox.visible = not mouse.screen.mywibox.visible end)
+    awful.key({                            }, "#122",   function () awful.spawn.with_shell("amixer --quiet set Master 1%-") end),
+    awful.key({ modkey                     }, "-",      function () awful.spawn.with_shell("amixer --quiet set Master 1%-") end),
+    awful.key({                            }, "#123",   function () awful.spawn.with_shell("amixer --quiet set Master 1%+") end),
+    awful.key({ modkey                     }, "+",      function () awful.spawn.with_shell("amixer --quiet set Master 1%+") end),
+    awful.key({ modkey                     }, "b",      function () mouse.screen.mywibox.visible = not mouse.screen.mywibox.visible end),
+    awful.key({ modkey, "Shift", "Control" }, "s",      function () awful.spawn.with_shell("poweroff") end)
 
 )
 
