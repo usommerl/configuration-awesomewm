@@ -282,8 +282,7 @@ local tasklist_buttons = awful.util.table.join(
                                           end))
 
 local function set_wallpaper(s)
-    local pattern = gears.color.create_linear_pattern(
-      "0,0:0,1080:0.1,#000000:1.0,#505050")
+    local pattern = gears.color.create_solid_pattern(theme.bg_normal)
     gears.wallpaper.set(pattern)
 end
 
@@ -295,7 +294,14 @@ awful.screen.connect_for_each_screen(function(s)
     set_wallpaper(s)
 
     -- Each screen has its own tag table.
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+    for i = 1, 9 do
+      awful.tag.add(tostring(i), {
+        layout             = awful.layout.layouts[1],
+        gap_single_client  = false,
+        gap                = 2,
+        screen             = s
+      })
+    end
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
