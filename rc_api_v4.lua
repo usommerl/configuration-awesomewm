@@ -226,6 +226,8 @@ awful.screen.connect_for_each_screen(function(s)
             mytextclock,
         },
     }
+    s.mywibox.visible = false
+    s.mywibox.ontop = true
 end)
 -- }}}
 
@@ -331,7 +333,11 @@ globalkeys = awful.util.table.join(
               {description = "lua execute prompt", group = "awesome"}),
     -- Menubar
     awful.key({ modkey }, "p", function() menubar.show() end,
-              {description = "show the menubar", group = "launcher"})
+              {description = "show the menubar", group = "launcher"}),
+
+    -- Custom keybindings
+    awful.key({ modkey            }, "b",      function () mouse.screen.mywibox.visible = not mouse.screen.mywibox.visible end)
+
 )
 
 clientkeys = awful.util.table.join(
