@@ -18,5 +18,6 @@ theme.taglist_squares_sel   = awful.util.getdir("config") .. "/themes/zenburn-mo
 theme.taglist_squares_unsel = awful.util.getdir("config") .. "/themes/zenburn-mod/taglist/squarez.png"
 
 theme.menu_width  = 650
+theme.tooltip_border_width = 0
 
 return theme
