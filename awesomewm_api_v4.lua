@@ -339,7 +339,7 @@ local batteryWidget = wibox.widget {
   layout        = wibox.container.rotate,
 }
 
-vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter, 1, "BAT0")
+vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter, 60, "BAT0")
 
 batteryWidgetTooltip = awful.tooltip({
   objects = { batteryWidget },
