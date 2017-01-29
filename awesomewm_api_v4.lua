@@ -636,20 +636,15 @@ client.connect_signal("mouse::enter", function(c)
     end
 end)
 
-client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
-client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
-
-client.connect_signal("focus", function(c)
+client.connect_signal("focus"  , function(c)
+                                   c.border_color = beautiful.border_focus
                                   hideBordersIfNecessary(c)
-                               end)
+                                 end)
 client.connect_signal("unfocus", function(c)
-                                 lastScreen = c.screen
-                                 c.border_color = beautiful.border_normal
-                               end)
-client.connect_signal("property::maximized_horizontal", function(c)
-                                                          hideBordersIfNecessary(c)
-                                                        end)
-client.connect_signal("property::maximized_vertical", function(c)
-                                                        hideBordersIfNecessary(c)
-                                                      end)
+                                   lastScreen = c.screen
+                                   c.border_color = beautiful.border_normal
+                                 end)
+
+client.connect_signal("property::maximized_horizontal", function(c) hideBordersIfNecessary(c) end)
+client.connect_signal("property::maximized_vertical"  , function(c) hideBordersIfNecessary(c) end)
 -- }}}
