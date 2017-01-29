@@ -343,6 +343,7 @@ vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter, 1, 
 
 batteryWidgetTooltip = awful.tooltip({
   objects = { batteryWidget },
+  mode = 'outside',
   timer_function =
     function()
       local pipe = io.popen('echo -n "$(acpi -a -b -i)"')
@@ -380,6 +381,7 @@ vicious.register(wifiWidget, vicious.widgets.wifi, wifiWidgetFormatter, 15, "wla
 
 wifiWidgetTooltip = awful.tooltip({
   objects = { wifiWidget },
+  mode = 'outside',
   timer_function =
     function()
       local pipe = io.popen('echo -n "$(connectionStatus.sh)"')
@@ -426,7 +428,6 @@ awful.screen.connect_for_each_screen(function(s)
       layout = wibox.layout.align.horizontal,
       {
         layout = wibox.layout.fixed.horizontal,
-        spacer(2),
         batteryWidget,
         spacer(3),
         wifiWidget,
