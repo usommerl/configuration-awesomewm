@@ -4,8 +4,17 @@ require("awful.autofocus")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local naughty = require("naughty")
+local vicious = require("vicious")
 
 -- {{{ Custom functions
+
+function dbug(message)
+  naughty.notify({
+    preset = naughty.config.presets.critical,
+    title = 'Debug',
+    text = tostring(message) })
+end
+
 function hideBordersIfNecessary(client)
    hideBordersIfMaximized(client)
    hideBordersIfOnlyOneClientVisible()
@@ -140,6 +149,55 @@ function run_prompt_completion_callback(command, cur_pos, ncomp, shell)
   end
   return command, cur_pos
 end
+
+
+function effectivePower()
+  local rate
+  local power_nowFile = io.open("/sys/class/power_supply/BAT0/power_now", "rb")
+  if power_nowFile then
+    rate = power_nowFile:read() / 10^6
+    power_nowFile:close()
+  else
+    local current_nowFile = io.open("/sys/class/power_supply/BAT0/current_now", "rb")
+    local voltage_nowFile = io.open("/sys/class/power_supply/BAT0/voltage_now", "rb")
+    local current_now = current_nowFile:read()
+    current_nowFile:close()
+    local voltage_now = voltage_nowFile:read()
+    voltage_nowFile:close()
+    rate = (voltage_now * current_now) / 10^12
+  end
+  return rate
+end
+
+math.round = function(number, precision)
+  precision = precision or 0
+  local decimal = string.find(tostring(number), ".", nil, true);
+  if (decimal) then
+    local power = 10 ^ precision;
+    if ( number >= 0 ) then
+      number = math.floor(number * power + 0.5) / power;
+    else
+      number = math.ceil(number * power - 0.5) / power;
+    end
+    -- convert number to string for formatting
+    number = tostring(number);
+    -- set cutoff
+    local cutoff = number:sub(decimal + 1 + precision);
+    -- delete everything after the cutoff
+    number = number:gsub(cutoff, "");
+  else
+    -- number is an integer
+    if ( precision > 0 ) then
+      number = tostring(number);
+      number = number .. ".";
+      for i = 1,precision
+      do
+          number = number .. "0";
+      end
+    end
+  end
+  return number;
+end
 -- }}}
 
 -- {{{ Error handling
@@ -192,6 +250,73 @@ awful.layout.layouts = {
 -- {{{ Wibar
 mytextclock = wibox.widget.textclock("%Y-%m-%dT%H:%M:%S%z", 1)
 
+local spacer = wibox.widget {
+  background_color  = theme.bg_normal,
+  widget            = wibox.widget.progressbar,
+  forced_width      = 2
+}
+
+function batteryWidgetFormatter(container, data)
+  local widget = container.widget
+  widget:set_value(data[2])
+
+  if data[2] >= 40 and data[2] <= 100 then
+      widget.color = theme.bg_focus
+  elseif data[2] >= 15 and data[2] < 40 then
+      widget.color = '#FFCC00'
+  elseif data[2] >= 0  and data[2] < 15 then
+      widget.color = '#CC0000'
+      if data[2] <= 3 and data[1] == "−" then
+        local pipe = io.popen('echo -n $(acpi -b | sed "s/Battery 0: //")')
+        local acpiResult = pipe:read('*a')
+        pipe:close()
+        naughty.notify({ preset = naughty.config.presets.critical,
+                         title = "Battery critical",
+                         timeout = 10,
+                         text =  acpiResult })
+      end
+  end
+
+  if data[1] == "+" then
+    widget.border_width = 1.8
+    widget.border_color = '#004000'
+  else
+    widget.border_width = 0
+  end
+  return data[2]
+end
+
+local batteryWidget = wibox.widget {
+  {
+    max_value         = 100,
+    ticks             = true,
+    ticks_size        = 1,
+    ticks_gap         = 1,
+    background_color  = theme.bg_normal,
+    color             = theme.bg_focus,
+    widget            = wibox.widget.progressbar,
+  },
+  forced_width  = 9,
+  direction     = 'east',
+  layout        = wibox.container.rotate,
+}
+
+vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter, 1, "BAT0")
+
+batteryWidgetTooltip = awful.tooltip({
+  objects = { batteryWidget },
+  timer_function =
+    function()
+      local pipe = io.popen('echo -n "$(acpi -a -b -i)"')
+      local acpiResult = pipe:read("*a")
+      pipe:close()
+      if string.find(acpiResult,"Adapter 0: off") ~= nil then
+        return "Battery 0: effective power consumption " .. math.round(effectivePower(), 1) .. " W\n" .. acpiResult
+      end
+      return acpiResult
+    end,
+})
+
 local taglist_buttons = awful.util.table.join(
   awful.button({        }, 1, function(t) t:view_only() end),
   awful.button({ modkey }, 1, function(t)
@@ -229,6 +354,8 @@ awful.screen.connect_for_each_screen(function(s)
       layout = wibox.layout.align.horizontal,
       {
         layout = wibox.layout.fixed.horizontal,
+        batteryWidget,
+        spacer,
         s.mytaglist,
         s.mypromptbox,
       },
