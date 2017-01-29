@@ -250,11 +250,13 @@ awful.layout.layouts = {
 -- {{{ Wibar
 mytextclock = wibox.widget.textclock("%Y-%m-%dT%H:%M:%S%z", 1)
 
-local spacer = wibox.widget {
-  background_color  = theme.bg_normal,
-  widget            = wibox.widget.progressbar,
-  forced_width      = 2
-}
+function spacer(width)
+  return wibox.widget { background_color  = theme.bg_normal,
+                        widget            = wibox.widget.progressbar,
+                        forced_width      = width }
+end
+
+width_progressbar = 8
 
 function batteryWidgetFormatter(container, data)
   local widget = container.widget
@@ -296,7 +298,7 @@ local batteryWidget = wibox.widget {
     color             = theme.bg_focus,
     widget            = wibox.widget.progressbar,
   },
-  forced_width  = 9,
+  forced_width  = width_progressbar,
   direction     = 'east',
   layout        = wibox.container.rotate,
 }
@@ -314,6 +316,40 @@ batteryWidgetTooltip = awful.tooltip({
         return "Battery 0: effective power consumption " .. math.round(effectivePower(), 1) .. " W\n" .. acpiResult
       end
       return acpiResult
+    end,
+})
+
+
+function wifiWidgetFormatter(container, data)
+  local widget = container.widget
+  widget:set_value(data['{linp}'])
+end
+
+local wifiWidget = wibox.widget {
+  {
+    max_value         = 100,
+    ticks             = true,
+    ticks_size        = 1,
+    ticks_gap         = 1,
+    background_color  = theme.bg_normal,
+    color             = theme.bg_focus,
+    widget            = wibox.widget.progressbar,
+  },
+  forced_width  = width_progressbar,
+  direction     = 'east',
+  layout        = wibox.container.rotate,
+}
+
+vicious.register(wifiWidget, vicious.widgets.wifi, wifiWidgetFormatter, 15, "wlan0")
+
+wifiWidgetTooltip = awful.tooltip({
+  objects = { wifiWidget },
+  timer_function =
+    function()
+      local pipe = io.popen('echo -n "$(connectionStatus.sh)"')
+      local value = pipe:read("*a")
+      pipe:close()
+      return value
     end,
 })
 
@@ -354,8 +390,11 @@ awful.screen.connect_for_each_screen(function(s)
       layout = wibox.layout.align.horizontal,
       {
         layout = wibox.layout.fixed.horizontal,
+        spacer(2),
         batteryWidget,
-        spacer,
+        spacer(3),
+        wifiWidget,
+        spacer(3),
         s.mytaglist,
         s.mypromptbox,
       },
