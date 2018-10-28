@@ -299,20 +299,20 @@ function batteryWidgetFormatter(container, data)
   widget:set_value(data[2])
 
   if data[2] >= 40 and data[2] <= 100 then
-      widget.color = theme.bg_focus
+    widget.color = theme.bg_focus
   elseif data[2] >= 15 and data[2] < 40 then
-      widget.color = '#FFCC00'
+    widget.color = '#FFCC00'
   elseif data[2] >= 0  and data[2] < 15 then
-      widget.color = '#CC0000'
-      if data[2] <= 3 and data[1] == "−" then
-        local pipe = io.popen('echo -n $(acpi -b | sed "s/Battery 0: //")')
-        local acpiResult = pipe:read('*a')
-        pipe:close()
-        naughty.notify({ preset = naughty.config.presets.critical,
-                         title = "Battery critical",
-                         timeout = 10,
-                         text =  acpiResult })
-      end
+    widget.color = '#CC0000'
+    if data[2] <= 3 and data[1] == "−" then
+      awful.spawn.easy_async_with_shell('acpi -b | sed "s/Battery 0: //"',
+        function(stdout, stderr, exitreason, exitcode)
+          naughty.notify({ preset = naughty.config.presets.critical,
+                           title = "Battery critical",
+                           timeout = 10,
+                           text =  string.gsub(stdout , "%s*$", "") })
+        end)
+    end
   end
 
   if data[1] == "+" then
