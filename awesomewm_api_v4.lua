@@ -341,21 +341,24 @@ local batteryWidget = wibox.widget {
 
 vicious.register(batteryWidget, vicious.widgets.bat, batteryWidgetFormatter, 60, "BAT0")
 
-batteryWidgetTooltip = awful.tooltip({
+local batteryWidgetTooltip = awful.tooltip({
   objects = { batteryWidget },
   mode = 'outside',
-  timer_function =
-    function()
-      local pipe = io.popen('echo -n "$(acpi -a -b -i)"')
-      local acpiResult = pipe:read("*a")
-      pipe:close()
-      if string.find(acpiResult,"Adapter 0: off") ~= nil then
-        return "Battery 0: effective power consumption " .. math.round(effectivePower(), 1) .. " W\n" .. acpiResult
-      end
-      return acpiResult
-    end,
+  timer_function = function()
+    awful.spawn.easy_async_with_shell('acpi -a -b -i',
+      function(stdout, stderr, exitreason, exitcode)
+        setBatteryWidgetTooltipText(string.gsub(stdout , "%s*$", ""))
+      end)
+  end
 })
 
+function setBatteryWidgetTooltipText(acpiResult)
+  if string.find(acpiResult, "Adapter 0: off") ~= nil then
+    batteryWidgetTooltip.text = "Battery 0: effective power consumption " .. math.round(effectivePower(), 1) .. " W\n" .. acpiResult
+  else
+    batteryWidgetTooltip.text = acpiResult
+  end
+end
 
 function wifiWidgetFormatter(container, data)
   local widget = container.widget
