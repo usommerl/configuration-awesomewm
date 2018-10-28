@@ -382,17 +382,20 @@ local wifiWidget = wibox.widget {
 
 vicious.register(wifiWidget, vicious.widgets.wifi, wifiWidgetFormatter, 15, "wlan0")
 
-wifiWidgetTooltip = awful.tooltip({
+local wifiWidgetTooltip = awful.tooltip({
   objects = { wifiWidget },
   mode = 'outside',
-  timer_function =
-    function()
-      local pipe = io.popen('echo -n "$(connectionStatus.sh)"')
-      local value = pipe:read("*a")
-      pipe:close()
-      return value
-    end,
+  timer_function = function()
+    awful.spawn.easy_async_with_shell('connectionStatus.sh',
+      function(stdout, stderr, exitreason, exitcode)
+        setWifiWidgetTooltipText(string.gsub(stdout , "%s*$", ""))
+      end)
+  end
 })
+
+function setWifiWidgetTooltipText(connectionStatus)
+  wifiWidgetTooltip.text = connectionStatus
+end
 
 local taglist_buttons = awful.util.table.join(
   awful.button({        }, 1, function(t) t:view_only() end),
