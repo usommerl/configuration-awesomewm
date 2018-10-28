@@ -37,7 +37,7 @@ function hideBordersIfMaximized(client)
 end
 
 function hideBordersDelayed(client)
-  local hideTimer = timer({ timeout = 0.5 })
+  local hideTimer = gears.timer({ timeout = 0.5 })
   hideTimer:connect_signal("timeout",
     function()
       client.border_color = theme.border_normal
