@@ -498,16 +498,15 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey,                        }, "r",          function ()
                                                                   local wiboxVisibleBeforeExecution = mouse.screen.mywibox.visible
                                                                   mouse.screen.mywibox.visible = true
-                                                                  awful.prompt.run({prompt="┃"},
-                                                                      mouse.screen.mypromptbox.widget,
-                                                                      run_prompt_execute_callback,
-                                                                      run_prompt_completion_callback,
-                                                                      awful.util.getdir("cache") .. "/history",
-                                                                      500,
-                                                                      function () mouse.screen.mywibox.visible = wiboxVisibleBeforeExecution end,
-                                                                      nil,
-                                                                      nil
-                                                                  )
+                                                                  awful.prompt.run({
+                                                                    prompt="┃",
+                                                                    textbox=mouse.screen.mypromptbox.widget,
+                                                                    exe_callback=run_prompt_execute_callback,
+                                                                    completion_callback=run_prompt_completion_callback,
+                                                                    history_path=awful.util.getdir("cache") .. "/history",
+                                                                    history_max=500,
+                                                                    done_callback=function () mouse.screen.mywibox.visible = wiboxVisibleBeforeExecution end
+                                                                  })
                                                               end)
 )
 
