@@ -453,7 +453,13 @@ awful.screen.connect_for_each_screen(function(s)
 
   s.mywibox.visible = false
   s.mywibox.ontop = true
-  s:fake_resize(228, 0, 1138, 768)
+
+  awful.spawn.easy_async_with_shell('xrandr | grep " connected " | grep "HDMI2"',
+    function(stdout, stderr, exitreason, exitcode)
+      if (stdout == nil or stdout == '') then
+        s:fake_resize(228, 0, 1138, 768)
+      end
+    end)
 end)
 -- }}}
 
