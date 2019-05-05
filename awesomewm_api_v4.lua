@@ -130,7 +130,7 @@ end
 function run_prompt_execute_callback(command)
   if command:sub(1,1) == ":" then
     name,_  = command:sub(2):gsub("%s.*","")
-    command = 'urxvt -name ' .. name .. ' -e zsh -i -c "' .. command:sub(2) .. '"'
+    command = 'alacritty -title ' .. name .. ' -e zsh -i -c "' .. command:sub(2) .. '"'
   end
   awful.spawn(command)
 end
@@ -259,7 +259,7 @@ end
 
 -- {{{ Variable definitions
 beautiful.init(awful.util.getdir("config") .. "/themes/zenburn-mod/theme.lua")
-terminal = "urxvt"
+terminal = "alacritty"
 modkey = "Mod4"
 lastScreen = 1
 
