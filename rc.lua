@@ -37,11 +37,11 @@ end
 -- update the working directory in your zsh precmd hook
 function startTerminal()
     local home = os.getenv("HOME")
-    local file = io.open(home .. "/.urxvt/start_directory", "r")
+    local file = io.open(home .. "/.config/alacritty/start_directory", "r")
     if file then
         local directory = file:read()
         if directory then
-            awful.util.spawn(terminal .. " -cd " .. directory)
+            awful.util.spawn(terminal .. " --working-directory " .. directory)
             return
         end
     end
@@ -50,7 +50,7 @@ end
 
 -- resets the terminal working directory at awesome startup
 function resetTerminalStartDirectory()
-    awful.util.spawn_with_shell("echo $HOME > $HOME/.urxvt/start_directory")
+    awful.util.spawn_with_shell("echo $HOME > $HOME/.config/alacritty/start_directory")
 end
 
 function tableLength(table)
@@ -168,7 +168,7 @@ end
 function run_prompt_execute_callback(command)
    if command:sub(1,1) == ":" then
       name,_  = command:sub(2):gsub("%s.*","")
-      command = 'urxvt -name ' .. name .. ' -e bash -i -c "' .. command:sub(2) .. '"'
+      command = 'alacritty --title ' .. name .. ' -e bash -i -c "' .. command:sub(2) .. '"'
    end
    awful.util.spawn(command)
 end
@@ -336,7 +336,7 @@ beautiful.init(awful.util.getdir("config") .. "/themes/zenburn-mod/theme.lua")
 setBorderColor(theme)
 
 -- This is used later as the default terminal and editor to run.
-terminal = "urxvt"
+terminal = "alacritty"
 editor = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
