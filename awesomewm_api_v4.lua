@@ -234,6 +234,26 @@ function table.tostring( tbl )
   end
   return "{" .. table.concat( result, "\n" ) .. "}"
 end
+
+-- starts a terminal in the current working directory
+-- update the working directory in your zsh precmd hook
+function startTerminal()
+    local home = os.getenv("HOME")
+    local file = io.open(home .. "/.terminal_start_directory", "r")
+    if file then
+        local directory = file:read()
+        if directory then
+            awful.util.spawn(terminal .. " --working-directory " .. directory)
+            return
+        end
+    end
+    awful.util.spawn(terminal)
+end
+
+-- resets the terminal working directory at awesome startup
+function resetTerminalStartDirectory()
+    awful.util.spawn_with_shell("echo $HOME > $HOME/.terminal_start_directory")
+end
 -- }}}
 
 -- {{{ Error handling
@@ -478,7 +498,7 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey,                        }, "u",          awful.client.urgent.jumpto),
   awful.key({ modkey, "Control"              }, "n",          show_minimized_clients_on_tag),
   awful.key({ modkey, "Control", "Mod1"      }, "n",          show_all_minimized_clients),
-  awful.key({ modkey,                        }, "Return",     function () awful.spawn(terminal)                                              end),
+  awful.key({ modkey,                        }, "Return",     startTerminal),
   awful.key({ modkey,                        }, "j",          function () awful.client.focus.byidx( 1)                                       end),
   awful.key({ modkey,                        }, "k",          function () awful.client.focus.byidx(-1)                                       end),
   awful.key({ modkey, "Shift"                }, "j",          function () awful.client.swap.byidx(  1)                                       end),
@@ -660,4 +680,8 @@ client.connect_signal("unfocus", function(c)
 
 client.connect_signal("property::maximized_horizontal", function(c) hideBordersIfNecessary(c) end)
 client.connect_signal("property::maximized_vertical"  , function(c) hideBordersIfNecessary(c) end)
+-- }}}
+
+-- {{{ Execute on startup/restart
+resetTerminalStartDirectory()
 -- }}}
