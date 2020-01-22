@@ -37,7 +37,7 @@ end
 -- update the working directory in your zsh precmd hook
 function startTerminal()
     local home = os.getenv("HOME")
-    local file = io.open(home .. "/.config/alacritty/start_directory", "r")
+    local file = io.open(home .. "/.terminal_start_directory", "r")
     if file then
         local directory = file:read()
         if directory then
