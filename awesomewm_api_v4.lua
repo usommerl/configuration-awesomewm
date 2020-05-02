@@ -252,7 +252,7 @@ end
 
 -- resets the terminal working directory at awesome startup
 function resetTerminalStartDirectory()
-    awful.util.spawn_with_shell("echo $HOME > $HOME/.terminal_start_directory")
+    awful.spawn.with_shell("echo $HOME > $HOME/.terminal_start_directory")
 end
 -- }}}
 
