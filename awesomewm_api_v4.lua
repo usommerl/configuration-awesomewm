@@ -243,11 +243,11 @@ function startTerminal()
     if file then
         local directory = file:read()
         if directory then
-            awful.util.spawn(terminal .. " --working-directory " .. directory)
+            awful.spawn(terminal .. " --working-directory " .. directory)
             return
         end
     end
-    awful.util.spawn(terminal)
+    awful.spawn(terminal)
 end
 
 -- resets the terminal working directory at awesome startup
