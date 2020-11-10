@@ -36,16 +36,16 @@ end
 -- starts a terminal in the current working directory
 -- update the working directory in your zsh precmd hook
 function startTerminal()
-    local home = os.getenv("HOME")
-    local file = io.open(home .. "/.terminal_start_directory", "r")
-    if file then
-        local directory = file:read()
-        if directory then
-            awful.util.spawn(terminal .. " --working-directory " .. directory)
-            return
-        end
+  local home = os.getenv("HOME")
+  local file = io.open(home .. "/.terminal_start_directory", "r")
+  if (file) then
+    local directory = file:read()
+    if directory then
+      awful.util.spawn(terminal .. " --working-directory " .. directory)
+      return
     end
-    awful.util.spawn(terminal)
+  end
+  awful.util.spawn(terminal)
 end
 
 -- resets the terminal working directory at awesome startup
@@ -594,9 +594,10 @@ globalkeys = awful.util.table.join(
         end),
 
     -- Standard program
-    awful.key({ modkey,           }, "Return", startTerminal),
-    awful.key({ modkey, "Control" }, "r", awesome.restart),
-    awful.key({ modkey, "Shift"   }, "q", awesome.quit),
+    awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal)   end),
+    awful.key({ modkey, "Shift"   }, "Return", startTerminal                               ),
+    awful.key({ modkey, "Control" }, "r",      awesome.restart),
+    awful.key({ modkey, "Shift"   }, "q",      awesome.quit),
 
     awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)    end),
     awful.key({ modkey,           }, "h",     function () awful.tag.incmwfact(-0.05)    end),
