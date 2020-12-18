@@ -127,6 +127,20 @@ function table_length(table)
   return count
 end
 
+function run_prompt()
+  local wiboxVisibleBeforeExecution = mouse.screen.mywibox.visible
+  mouse.screen.mywibox.visible = true
+  awful.prompt.run({
+    prompt="┃",
+    textbox=mouse.screen.mypromptbox.widget,
+    exe_callback=run_prompt_execute_callback,
+    completion_callback=run_prompt_completion_callback,
+    history_path=awful.util.getdir("cache") .. "/history",
+    history_max=500,
+    done_callback=function () mouse.screen.mywibox.visible = wiboxVisibleBeforeExecution end
+  })
+end
+
 function run_prompt_execute_callback(command)
   if command:sub(1,1) == ":" then
     name,_  = command:sub(2):gsub("%s.*","")
@@ -526,19 +540,7 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey, "Shift"                }, "Pause",      function () awful.spawn.with_shell("systemctl suspend")                         end),
   awful.key({ modkey                         }, "p",          function () awful.spawn.with_shell("ncmpcpp toggle")                           end),
   awful.key({ modkey, "Shift", "Control"     }, "s",          function () awful.spawn.with_shell("poweroff")                                 end),
-  awful.key({ modkey,                        }, "r",          function ()
-                                                                  local wiboxVisibleBeforeExecution = mouse.screen.mywibox.visible
-                                                                  mouse.screen.mywibox.visible = true
-                                                                  awful.prompt.run({
-                                                                    prompt="┃",
-                                                                    textbox=mouse.screen.mypromptbox.widget,
-                                                                    exe_callback=run_prompt_execute_callback,
-                                                                    completion_callback=run_prompt_completion_callback,
-                                                                    history_path=awful.util.getdir("cache") .. "/history",
-                                                                    history_max=500,
-                                                                    done_callback=function () mouse.screen.mywibox.visible = wiboxVisibleBeforeExecution end
-                                                                  })
-                                                              end)
+  awful.key({ modkey,                        }, "r",          run_prompt)
 )
 
 clientkeys = awful.util.table.join(
