@@ -256,6 +256,7 @@ end
 -- {{{ Variable definitions
 beautiful.init(awful.util.getdir("config") .. "/themes/zenburn-mod/theme.lua")
 terminal = "alacritty"
+roficmd = "rofi -run-shell-command 'alacritty -d 9999 9999 -t {cmd} -e {cmd}' -combi-modi window,run -show combi -modi combi,ssh"
 modkey = "Mod4"
 lastScreen = 1
 
@@ -502,7 +503,7 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey, "Shift"                }, "Pause",      function () awful.spawn.with_shell("systemctl suspend")                          end),
   awful.key({ modkey                         }, "p",          function () awful.spawn.with_shell("ncmpcpp toggle")                             end),
   awful.key({ modkey, "Shift", "Control"     }, "s",          function () awful.spawn.with_shell("poweroff")                                   end),
-  awful.key({ modkey,                        }, "r",          function () awful.spawn.with_shell("rofi -terminal 'alacritty -d 9999 9999' -show run") end)
+  awful.key({ modkey,                        }, "r",          function () awful.spawn.with_shell(roficmd) end)
 )
 
 clientkeys = awful.util.table.join(
