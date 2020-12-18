@@ -540,7 +540,7 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey, "Shift"                }, "Pause",      function () awful.spawn.with_shell("systemctl suspend")                          end),
   awful.key({ modkey                         }, "p",          function () awful.spawn.with_shell("ncmpcpp toggle")                             end),
   awful.key({ modkey, "Shift", "Control"     }, "s",          function () awful.spawn.with_shell("poweroff")                                   end),
-  awful.key({ modkey,                        }, "r",          function () awful.spawn.with_shell("rofi -terminal " .. terminal .." -show run") end)
+  awful.key({ modkey,                        }, "r",          function () awful.spawn.with_shell("rofi -terminal 'alacritty -d 9999 9999' -show run") end)
 )
 
 clientkeys = awful.util.table.join(
