@@ -256,7 +256,7 @@ end
 -- {{{ Variable definitions
 beautiful.init(awful.util.getdir("config") .. "/themes/zenburn-mod/theme.lua")
 terminal = "alacritty"
-roficmd = "rofi -run-shell-command 'alacritty -d 9999 9999 -t {cmd} -e {cmd}' -combi-modi window,run -show combi -modi combi,ssh"
+roficmd = "rofi -no-disable-history -combi-modi window,run,ssh -show combi -modi combi"
 modkey = "Mod4"
 lastScreen = 1
 
