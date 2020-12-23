@@ -256,7 +256,17 @@ end
 -- {{{ Variable definitions
 beautiful.init(awful.util.getdir("config") .. "/themes/zenburn-mod/theme.lua")
 terminal = "alacritty"
-roficmd = "rofi -no-disable-history -combi-modi window,run,ssh -show combi -modi combi"
+rofiRunCommand = "rofi -no-disable-history -combi-modi window,run,ssh -show combi -modi combi"
+rofiClipboardCommand = [[
+  BEFORE="$(xclip -o -selection clipboard)"
+  rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
+  sleep 0.1
+  AFTER="$(xclip -o -selection clipboard)"
+  if [ "${AFTER}" != "${BEFORE}" ]; then
+    xdotool key ctrl+shift+v
+  fi
+]]
+
 modkey = "Mod4"
 lastScreen = 1
 
@@ -503,7 +513,8 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey, "Shift"                }, "Pause",      function () awful.spawn.with_shell("systemctl suspend")                          end),
   awful.key({ modkey                         }, "p",          function () awful.spawn.with_shell("ncmpcpp toggle")                             end),
   awful.key({ modkey, "Shift", "Control"     }, "s",          function () awful.spawn.with_shell("poweroff")                                   end),
-  awful.key({ modkey,                        }, "r",          function () awful.spawn.with_shell(roficmd) end)
+  awful.key({ modkey,                        }, "c",          function () awful.spawn.with_shell(rofiClipboardCommand) end),
+  awful.key({ modkey,                        }, "r",          function () awful.spawn.with_shell(rofiRunCommand) end)
 )
 
 clientkeys = awful.util.table.join(
