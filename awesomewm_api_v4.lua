@@ -659,6 +659,8 @@ client.connect_signal("unfocus", function(c)
 
 client.connect_signal("property::maximized_horizontal", function(c) hideBordersIfNecessary(c) end)
 client.connect_signal("property::maximized_vertical"  , function(c) hideBordersIfNecessary(c) end)
+screen.connect_signal("removed", awesome.restart)
+screen.connect_signal("added", awesome.restart)
 -- }}}
 
 -- {{{ Execute on startup/restart
