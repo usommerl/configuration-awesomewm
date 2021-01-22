@@ -513,7 +513,7 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey, "Shift"                }, "Pause",      function () awful.spawn.with_shell("systemctl suspend")                          end),
   awful.key({ modkey                         }, "p",          function () awful.spawn.with_shell("ncmpcpp toggle")                             end),
   awful.key({ modkey, "Shift", "Control"     }, "s",          function () awful.spawn.with_shell("poweroff")                                   end),
-  awful.key({ modkey,                        }, "c",          function () awful.spawn.with_shell(rofiClipboardCommand) end),
+  awful.key({ modkey,                        }, "v",          function () awful.spawn.with_shell(rofiClipboardCommand) end),
   awful.key({ modkey,                        }, "r",          function () awful.spawn.with_shell(rofiRunCommand) end)
 )
 
