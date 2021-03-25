@@ -254,7 +254,7 @@ end
 -- }}}
 
 -- {{{ Variable definitions
-beautiful.init(awful.util.getdir("config") .. "/themes/zenburn-mod/theme.lua")
+beautiful.init(awful.util.getdir("config") .. "/themes/dracula/theme.lua")
 terminal = "alacritty"
 rofiRunCommand = "rofi -no-disable-history -combi-modi window,run,ssh -show combi -modi combi"
 rofiClipboardCommand = [[
