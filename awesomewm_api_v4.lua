@@ -6,6 +6,8 @@ local beautiful = require("beautiful")
 local naughty = require("naughty")
 local vicious = require("vicious")
 
+awful.util.shell = "bash"
+
 -- {{{ Custom functions
 
 function dbug(message)
