@@ -2,6 +2,7 @@
 
 install() {
   link "$REPOSITORY_ROOT" ~/.config/awesome
+  sudo link "$REPOSITORY_ROOT/rofi_wm_hidden_clients.sh" /usr/local/bin/rofi_wm_hidden_clients
 }
 
 source <(curl -Lfs https://git.io/lnkr)
