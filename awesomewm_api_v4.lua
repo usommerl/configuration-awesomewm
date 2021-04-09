@@ -389,7 +389,8 @@ local wifiWidget = wibox.widget {
   layout        = wibox.container.rotate,
 }
 
-vicious.register(wifiWidget, vicious.widgets.wifi, wifiWidgetFormatter, 15, "wlan0")
+wlanInterface = io.popen("find /sys/class/net -type l -execdir basename '{}' ';' | grep '^w.*'"):read("*all")
+vicious.register(wifiWidget, vicious.widgets.wifi, wifiWidgetFormatter, 15, wlanInterface)
 
 local wifiWidgetTooltip = awful.tooltip({
   objects = { wifiWidget },
