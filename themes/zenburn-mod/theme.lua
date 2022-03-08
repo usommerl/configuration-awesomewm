@@ -20,4 +20,15 @@ theme.taglist_squares_unsel = awful.util.getdir("config") .. "/themes/zenburn-mo
 theme.menu_width  = 650
 theme.tooltip_border_width = 0
 
+theme.notification_bg = "#FFFFFF"
+theme.notification_fg = "#000000"
+theme.notification_border_color = "#777777"
+theme.notification_font = "JetBrains Mono 6"
+theme.notification_width = 500
+theme.notification_max_width = 500
+
+naughty.config.defaults.border_width = 1
+naughty.config.defaults.icon_size = 31
+naughty.config.spacing = 5
+
 return theme
