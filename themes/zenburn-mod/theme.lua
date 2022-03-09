@@ -1,4 +1,5 @@
 local awful = require("awful")
+local naughty = require("naughty")
 
 theme = dofile("/usr/share/awesome/themes/zenburn/theme.lua")
 
