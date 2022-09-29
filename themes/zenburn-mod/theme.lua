@@ -3,7 +3,7 @@ local naughty = require("naughty")
 
 theme = dofile("/usr/share/awesome/themes/zenburn/theme.lua")
 
-theme.font      = "JetBrainsMono Nerd Font 10"
+theme.font = "JetBrainsMono 10"
 
 theme.fg_normal = "#CCCCCC"
 theme.fg_focus  = "#EEEEEE"
@@ -18,13 +18,13 @@ theme.border_width  = "1"
 theme.taglist_squares_sel   = awful.util.getdir("config") .. "/themes/zenburn-mod/taglist/squarefz.png"
 theme.taglist_squares_unsel = awful.util.getdir("config") .. "/themes/zenburn-mod/taglist/squarez.png"
 
-theme.menu_width  = 650
+theme.menu_width           = 650
 theme.tooltip_border_width = 0
 
 theme.notification_bg = "#FFFFFF"
 theme.notification_fg = "#000000"
 theme.notification_border_color = "#777777"
-theme.notification_font = "JetBrains Mono 6"
+theme.notification_font = "JetBrains Mono 10"
 theme.notification_width = 500
 theme.notification_max_width = 500
 
